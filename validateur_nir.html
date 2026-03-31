@@ -451,3 +451,45 @@
   </script>
 </body>
 </html>
+
+<style>
+  :root.dark body { background: #0d1117; color: #e6edf3; }
+  :root.dark .page-desc { color: #7d8590; }
+  :root.dark .card { background: #161b22; border-color: rgba(255,255,255,0.1); }
+  :root.dark .card-title { color: #7d8590; }
+  :root.dark .nir-input { background: #21262d; border-color: rgba(255,255,255,0.15); color: #e6edf3; }
+  :root.dark .nir-input:focus { border-color: #58a6ff; }
+  :root.dark .highlight-box { border-color: rgba(255,255,255,0.1); }
+  :root.dark .hl-seg { border-color: rgba(255,255,255,0.08); }
+  :root.dark .status-bar { border-color: rgba(255,255,255,0.1); }
+  :root.dark .seg { background: #21262d; border-color: rgba(255,255,255,0.08); }
+  :root.dark .seg.ok   { background: #0d2a1f; border-color: #1D9E75; }
+  :root.dark .seg.err  { background: #2a0d0d; border-color: #D85A30; }
+  :root.dark .seg.warn { background: #2a1f0d; border-color: #BA7517; }
+  :root.dark .seg-value { color: #e6edf3; }
+  :root.dark .seg-desc  { color: #7d8590; }
+  :root.dark .form-field label { color: #7d8590; }
+  :root.dark .form-field select,
+  :root.dark .form-field input[type="number"],
+  :root.dark .form-field input[type="text"] { background: #21262d; border-color: rgba(255,255,255,0.12); color: #e6edf3; }
+  :root.dark .gbtn { background: #21262d; border-color: rgba(255,255,255,0.1); color: #7d8590; }
+  :root.dark .gbtn.active { background: #1c2d3f; color: #58a6ff; border-color: #388bfd; }
+  :root.dark .gen-btn { background: #21262d; border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  :root.dark .gen-btn:hover { background: #2d333b; }
+  :root.dark .info-box { background: #21262d; }
+  :root.dark .note { color: #7d8590; }
+  :root.dark .com-input { background: #21262d; border-color: rgba(255,255,255,0.12); color: #e6edf3; }
+  :root.dark .com-dropdown { background: #161b22; border-color: rgba(255,255,255,0.1); }
+  :root.dark .com-item { border-color: rgba(255,255,255,0.06); }
+  :root.dark .com-item:hover, :root.dark .com-item.active { background: #21262d; }
+  :root.dark .com-item-name { color: #e6edf3; }
+  :root.dark .separator::before, :root.dark .separator::after { background: rgba(255,255,255,0.08); }
+  :root.dark .separator span { color: #7d8590; }
+</style>
+<script>
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'set-theme') {
+      document.documentElement.classList.toggle('dark', e.data.dark);
+    }
+  });
+</script>

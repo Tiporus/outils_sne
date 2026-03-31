@@ -303,3 +303,31 @@
 </script>
 </body>
 </html>
+
+<style>
+  :root.dark body { background: #0d1117; color: #e6edf3; }
+  :root.dark #app { background: #161b22; border-color: rgba(255,255,255,0.1); }
+  :root.dark .page-desc { color: #7d8590; }
+  :root.dark .page-desc code { background: #21262d; color: #e6edf3; }
+  :root.dark label { color: #7d8590; }
+  :root.dark .mbtn { background: #161b22; color: #7d8590; border-color: rgba(255,255,255,0.1); }
+  :root.dark .mbtn.active { background: #1c2d3f; color: #58a6ff; border-color: #388bfd; }
+  :root.dark textarea { background: #21262d; border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  :root.dark .output-box { background: #21262d; border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  :root.dark .output-box.empty { color: #7d8590; }
+  :root.dark .badge { background: #21262d; border-color: rgba(255,255,255,0.1); color: #7d8590; }
+  :root.dark .action-btn { color: #e6edf3; border-color: rgba(255,255,255,0.15); }
+  :root.dark .action-btn:hover { background: #21262d; }
+  :root.dark .file-zone { background: #161b22; border-color: rgba(255,255,255,0.12); color: #7d8590; }
+  :root.dark .file-zone:hover, :root.dark .file-zone.dragover { background: #21262d; }
+  :root.dark .stat-chip { background: #21262d; border-color: rgba(255,255,255,0.08); color: #7d8590; }
+  :root.dark .sep { background: rgba(255,255,255,0.08); }
+  :root.dark .note { color: #7d8590; }
+</style>
+<script>
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'set-theme') {
+      document.documentElement.classList.toggle('dark', e.data.dark);
+    }
+  });
+</script>

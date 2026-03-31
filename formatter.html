@@ -735,3 +735,36 @@ showEmpty();
 </script>
 </body>
 </html>
+
+<style>
+  /* Le formatter est dark par défaut — on inverse pour le mode clair */
+  :root.light {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --surface2: #f0f0ec;
+    --border: rgba(0,0,0,0.1);
+    --text: #1a1a18;
+    --muted: #7d8590;
+    --accent: #0969da;
+
+    --c-key:    #0550ae;
+    --c-str:    #0a3069;
+    --c-num:    #953800;
+    --c-bool:   #cf222e;
+    --c-null:   #6e7781;
+    --c-tag:    #116329;
+    --c-attr:   #6639ba;
+    --c-aval:   #0a3069;
+    --c-cdata:  #7d4e00;
+    --c-comment:#6e7781;
+    --c-punct:  #999;
+  }
+</style>
+<script>
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'set-theme') {
+      document.documentElement.classList.toggle('light', !e.data.dark);
+      // Le formatter est dark par défaut, donc on n'ajoute 'light' que si mode clair
+    }
+  });
+</script>

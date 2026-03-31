@@ -138,3 +138,25 @@
 </script>
 </body>
 </html>
+
+<style>
+  :root.dark body { background: #0d1117; color: #e6edf3; }
+  :root.dark #app { background: #161b22; border-color: rgba(255,255,255,0.1); }
+  :root.dark .page-desc { color: #7d8590; }
+  :root.dark .page-desc code { background: #21262d; color: #e6edf3; }
+  :root.dark label { color: #7d8590; }
+  :root.dark textarea { background: #21262d; border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  :root.dark #output-box { background: #21262d; border-color: rgba(255,255,255,0.1); color: #e6edf3; }
+  :root.dark #output-box.empty { color: #7d8590; }
+  :root.dark .badge { background: #21262d; border-color: rgba(255,255,255,0.1); color: #7d8590; }
+  :root.dark button { color: #e6edf3; border-color: rgba(255,255,255,0.15); }
+  :root.dark button:hover { background: #21262d; }
+  :root.dark .sep { background: rgba(255,255,255,0.08); }
+</style>
+<script>
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'set-theme') {
+      document.documentElement.classList.toggle('dark', e.data.dark);
+    }
+  });
+</script>
