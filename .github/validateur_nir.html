@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validateur NIR</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f7f7f5; color: #1a1a1a; max-width: 760px; margin: 2rem auto; padding: 0 1.5rem 3rem; }
+    .page-header { margin: 0 0 1.5rem; }
+    h1 { font-size: 18px; font-weight: 500; margin: 0 0 .35rem; }
+    .page-desc { font-size: 13px; color: #666; line-height: 1.5; }
+
+    .card { background: #fff; border: 0.5px solid #e0e0dd; border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; }
+    .card-title { font-size: 11px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 1rem; }
+
+    .nir-input { font-family: monospace; font-size: 20px; letter-spacing: .12em; width: 100%; padding: 12px 14px; border-radius: 8px; border: 0.5px solid #aaa; background: #fff; color: #1a1a1a; }
+    .nir-input:focus { outline: none; border-color: #555; }
+
+    .highlight-box { display: flex; gap: 0; margin: .8rem 0; font-family: monospace; font-size: 15px; flex-wrap: wrap; border-radius: 8px; overflow: hidden; border: 0.5px solid #ddd; min-height: 38px; }
+    .hl-seg { padding: 8px 10px; text-align: center; font-weight: 500; border-right: 0.5px solid #ddd; }
+
+    .status-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; margin: 1rem 0 0; border: 0.5px solid #ddd; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    .seg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 1.2rem 0 0; }
+    .seg { border-radius: 8px; border: 0.5px solid #ddd; padding: 8px 12px; background: #fff; }
+    .seg.ok   { border-color: #1D9E75; background: #E1F5EE; }
+    .seg.err  { border-color: #D85A30; background: #FAECE7; }
+    .seg.warn { border-color: #BA7517; background: #FAEEDA; }
+    .seg-label { font-size: 10px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: .05em; margin: 0 0 2px; }
+    .seg.ok   .seg-label { color: #0F6E56; }
+    .seg.err  .seg-label { color: #993C1D; }
+    .seg.warn .seg-label { color: #854F0B; }
+    .seg-value { font-size: 14px; font-weight: 500; color: #1a1a1a; font-family: monospace; margin: 0; }
+    .seg-desc  { font-size: 11px; color: #666; margin: 2px 0 0; }
+    .seg.ok  .seg-desc { color: #0F6E56; }
+    .seg.err .seg-desc { color: #993C1D; }
+    .seg.warn .seg-desc { color: #854F0B; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-field label { font-size: 12px; color: #666; font-weight: 500; }
+    .form-field select, .form-field input[type="number"], .form-field input[type="text"] {
+      padding: 8px 10px; border-radius: 8px; border: 0.5px solid #ccc;
+      background: #fff; color: #1a1a1a; font-size: 13px; font-family: inherit;
+    }
+    .form-field select:focus, .form-field input:focus { outline: none; border-color: #888; }
+    .form-field .hint { font-size: 11px; color: #aaa; }
+
+    .gen-btn { width: 100%; margin-top: 1rem; padding: 10px; border-radius: 8px; border: 0.5px solid #ccc; background: #f0f0ed; color: #1a1a1a; font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; }
+    .gen-btn:hover { background: #e4e4e0; }
+    .gen-btn:active { transform: scale(.98); }
+
+    .gender-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .gbtn { flex: 1; padding: 8px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #666; cursor: pointer; font-size: 13px; font-family: inherit; }
+    .gbtn.active { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; font-weight: 500; }
+
+    .info-box { background: #f5f5f2; border-radius: 8px; padding: 10px 14px; margin-top: 1rem; }
+    .note { font-size: 11px; color: #aaa; margin-top: .8rem; }
+
+    .com-wrap { position: relative; }
+    .com-input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; font-size: 13px; font-family: inherit; }
+    .com-input:focus { outline: none; border-color: #888; }
+    .com-input.loading { border-color: #BA7517; }
+    .com-input.selected { border-color: #1D9E75; background: #f4fdf9; }
+    .com-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 0.5px solid #ccc; border-radius: 8px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .com-item { padding: 9px 12px; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid #f0f0ed; }
+    .com-item:last-child { border-bottom: none; }
+    .com-item:hover, .com-item.active { background: #f5f5f2; }
+    .com-item-name { color: #1a1a1a; font-weight: 500; }
+    .com-item-code { color: #aaa; font-family: monospace; font-size: 12px; }
+    .com-badge { display: inline-block; margin-top: 3px; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #E1F5EE; color: #0F6E56; font-family: monospace; font-weight: 500; }
+
+    .separator { display: flex; align-items: center; gap: 10px; margin: 0 0 1.2rem; }
+    .separator span { font-size: 11px; color: #aaa; white-space: nowrap; }
+    .separator::before, .separator::after { content: ''; flex: 1; height: 0.5px; background: #e0e0dd; }
+
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } .gender-row { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Validateur NIR</h1>
+    <p class="page-desc">Construit, décode et valide un numéro de sécurité sociale français (NIR) à 15 chiffres.</p>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Construire depuis les données personnelles</p>
+
+    <div class="gender-row">
+      <button class="gbtn active" id="gbtn-1" onclick="setGender('1')">Homme</button>
+      <button class="gbtn" id="gbtn-2" onclick="setGender('2')">Femme</button>
+      <button class="gbtn" id="gbtn-3" onclick="setGender('3')">Né(e) à l'étranger</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Année de naissance</label>
+        <input type="number" id="f-annee" min="1900" max="2024" placeholder="ex. 1985" oninput="buildFromForm()">
+      </div>
+      <div class="form-field">
+        <label>Mois de naissance</label>
+        <select id="f-mois" onchange="buildFromForm()">
+          <option value="">— choisir —</option>
+          <option value="01">01 — Janvier</option><option value="02">02 — Février</option>
+          <option value="03">03 — Mars</option><option value="04">04 — Avril</option>
+          <option value="05">05 — Mai</option><option value="06">06 — Juin</option>
+          <option value="07">07 — Juillet</option><option value="08">08 — Août</option>
+          <option value="09">09 — Septembre</option><option value="10">10 — Octobre</option>
+          <option value="11">11 — Novembre</option><option value="12">12 — Décembre</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Département de naissance</label>
+        <select id="f-dep" onchange="buildFromForm()">
+          <option value="">— choisir —</option>
+          <option value="01">01 — Ain</option><option value="02">02 — Aisne</option><option value="03">03 — Allier</option>
+          <option value="04">04 — Alpes-de-Haute-Provence</option><option value="05">05 — Hautes-Alpes</option>
+          <option value="06">06 — Alpes-Maritimes</option><option value="07">07 — Ardèche</option>
+          <option value="08">08 — Ardennes</option><option value="09">09 — Ariège</option>
+          <option value="10">10 — Aube</option><option value="11">11 — Aude</option>
+          <option value="12">12 — Aveyron</option><option value="13">13 — Bouches-du-Rhône</option>
+          <option value="14">14 — Calvados</option><option value="15">15 — Cantal</option>
+          <option value="16">16 — Charente</option><option value="17">17 — Charente-Maritime</option>
+          <option value="18">18 — Cher</option><option value="19">19 — Corrèze</option>
+          <option value="2A">2A — Corse-du-Sud</option><option value="2B">2B — Haute-Corse</option>
+          <option value="21">21 — Côte-d'Or</option><option value="22">22 — Côtes-d'Armor</option>
+          <option value="23">23 — Creuse</option><option value="24">24 — Dordogne</option>
+          <option value="25">25 — Doubs</option><option value="26">26 — Drôme</option>
+          <option value="27">27 — Eure</option><option value="28">28 — Eure-et-Loir</option>
+          <option value="29">29 — Finistère</option><option value="30">30 — Gard</option>
+          <option value="31">31 — Haute-Garonne</option><option value="32">32 — Gers</option>
+          <option value="33">33 — Gironde</option><option value="34">34 — Hérault</option>
+          <option value="35">35 — Ille-et-Vilaine</option><option value="36">36 — Indre</option>
+          <option value="37">37 — Indre-et-Loire</option><option value="38">38 — Isère</option>
+          <option value="39">39 — Jura</option><option value="40">40 — Landes</option>
+          <option value="41">41 — Loir-et-Cher</option><option value="42">42 — Loire</option>
+          <option value="43">43 — Haute-Loire</option><option value="44">44 — Loire-Atlantique</option>
+          <option value="45">45 — Loiret</option><option value="46">46 — Lot</option>
+          <option value="47">47 — Lot-et-Garonne</option><option value="48">48 — Lozère</option>
+          <option value="49">49 — Maine-et-Loire</option><option value="50">50 — Manche</option>
+          <option value="51">51 — Marne</option><option value="52">52 — Haute-Marne</option>
+          <option value="53">53 — Mayenne</option><option value="54">54 — Meurthe-et-Moselle</option>
+          <option value="55">55 — Meuse</option><option value="56">56 — Morbihan</option>
+          <option value="57">57 — Moselle</option><option value="58">58 — Nièvre</option>
+          <option value="59">59 — Nord</option><option value="60">60 — Oise</option>
+          <option value="61">61 — Orne</option><option value="62">62 — Pas-de-Calais</option>
+          <option value="63">63 — Puy-de-Dôme</option><option value="64">64 — Pyrénées-Atlantiques</option>
+          <option value="65">65 — Hautes-Pyrénées</option><option value="66">66 — Pyrénées-Orientales</option>
+          <option value="67">67 — Bas-Rhin</option><option value="68">68 — Haut-Rhin</option>
+          <option value="69">69 — Rhône</option><option value="70">70 — Haute-Saône</option>
+          <option value="71">71 — Saône-et-Loire</option><option value="72">72 — Sarthe</option>
+          <option value="73">73 — Savoie</option><option value="74">74 — Haute-Savoie</option>
+          <option value="75">75 — Paris</option><option value="76">76 — Seine-Maritime</option>
+          <option value="77">77 — Seine-et-Marne</option><option value="78">78 — Yvelines</option>
+          <option value="79">79 — Deux-Sèvres</option><option value="80">80 — Somme</option>
+          <option value="81">81 — Tarn</option><option value="82">82 — Tarn-et-Garonne</option>
+          <option value="83">83 — Var</option><option value="84">84 — Vaucluse</option>
+          <option value="85">85 — Vendée</option><option value="86">86 — Vienne</option>
+          <option value="87">87 — Haute-Vienne</option><option value="88">88 — Vosges</option>
+          <option value="89">89 — Yonne</option><option value="90">90 — Territoire de Belfort</option>
+          <option value="91">91 — Essonne</option><option value="92">92 — Hauts-de-Seine</option>
+          <option value="93">93 — Seine-Saint-Denis</option><option value="94">94 — Val-de-Marne</option>
+          <option value="95">95 — Val-d'Oise</option>
+          <option value="97">97 — DOM (Guadeloupe / Martinique…)</option>
+          <option value="99">99 — Étranger</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Commune de naissance</label>
+        <div class="com-wrap">
+          <input type="text" class="com-input" id="f-com-search" placeholder="Rechercher une commune…" autocomplete="off" oninput="onComSearch(this)" onkeydown="onComKey(event)" onfocus="onComFocus()" onblur="onComBlur()">
+          <div class="com-dropdown" id="com-dropdown" style="display:none;"></div>
+        </div>
+        <div id="com-badge-wrap"></div>
+        <input type="hidden" id="f-com" value="">
+      </div>
+      <div class="form-field">
+        <label>N° d'ordre</label>
+        <input type="text" id="f-ord" maxlength="3" placeholder="ex. 125" oninput="buildFromForm()">
+        <span class="hint">3 chiffres, attribué à la naissance</span>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" onclick="generateNir()">Calculer la clé et remplir le NIR &darr;</button>
+  </div>
+
+  <div class="separator"><span>ou saisir directement</span></div>
+
+  <div class="card">
+    <p class="card-title">NIR complet (15 chiffres)</p>
+
+    <input class="nir-input" type="text" id="nir" maxlength="15" placeholder="1 85 05 44 056 125 46" oninput="onInput(this)" autocomplete="off" spellcheck="false">
+
+    <div class="highlight-box" id="highlight-box"></div>
+
+    <div class="status-bar" id="status-bar">
+      <div class="status-dot" style="background:#bbb;" id="status-dot"></div>
+      <span style="font-size:13px;color:#666;" id="status-text">Saisissez un NIR à 15 chiffres</span>
+    </div>
+
+    <div class="seg-grid" id="seg-grid"></div>
+
+    <div class="info-box">
+      <div style="font-size:11px;color:#666;font-weight:500;margin-bottom:4px;">Structure du NIR</div>
+      <div style="font-size:11px;color:#666;line-height:1.7;">
+        <b style="font-weight:500;">S</b> (1) · <b style="font-weight:500;">AA</b> (2) · <b style="font-weight:500;">MM</b> (2) · <b style="font-weight:500;">DEP</b> (2) · <b style="font-weight:500;">COM</b> (3) · <b style="font-weight:500;">ORD</b> (3) · <b style="font-weight:500;">CLE</b> (2) = 15 chiffres
+      </div>
+    </div>
+  </div>
+
+  <p class="note">Aucune donnée n'est transmise. Tout est calculé localement dans votre navigateur.</p>
+
+  <script>
+    let selectedGender = '1';
+
+    function setGender(g) {
+      selectedGender = g;
+      ['1','2','3'].forEach(v => document.getElementById('gbtn-'+v).classList.toggle('active', v===g));
+      buildFromForm();
+    }
+
+    const DEPTS_VALIDES = new Set([
+      '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19',
+      '20','21','22','23','24','25','26','27','28','29','2A','2B','30','31','32','33','34','35','36',
+      '37','38','39','40','41','42','43','44','45','46','47','48','49','50','51','52','53','54','55',
+      '56','57','58','59','60','61','62','63','64','65','66','67','68','69','70','71','72','73','74',
+      '75','76','77','78','79','80','81','82','83','84','85','86','87','88','89','90','91','92','93',
+      '94','95','97','99'
+    ]);
+
+    const SEG_COLORS = ['#185FA5','#0F6E56','#854F0B','#993C1D','#534AB7','#712B13','#444441'];
+    const SEG_BG     = ['#E6F1FB','#E1F5EE','#FAEEDA','#FAECE7','#EEEDFE','#FAECE7','#F1EFE8'];
+
+    function cleanNir(v) { return v.replace(/[\s\-\.]/g,'').toUpperCase(); }
+
+    function calcCle(nir13) {
+      let s = nir13.replace(/2A/i,'19').replace(/2B/i,'18');
+      if(!/^\d{13}$/.test(s)) return null;
+      return 97 - (parseInt(s) % 97);
+    }
+
+    function pad(v, n) { return String(v).padStart(n,'0'); }
+
+    /* ── Commune autocomplete ── */
+    let comDebounce = null, comResults = [], comIndex = -1, comLocked = false;
+
+    function onComSearch(el) {
+      const q = el.value.trim();
+      document.getElementById('f-com').value = '';
+      document.getElementById('com-badge-wrap').innerHTML = '';
+      el.classList.remove('selected');
+      comLocked = false;
+      buildFromForm();
+      if(q.length < 2) { hideDropdown(); return; }
+      el.classList.add('loading');
+      clearTimeout(comDebounce);
+      comDebounce = setTimeout(() => fetchCommunes(q), 280);
+    }
+
+    async function fetchCommunes(q) {
+      const dep = document.getElementById('f-dep').value;
+      const depParam = dep && dep !== '99' ? '&codeDepartement=' + encodeURIComponent(dep.length > 2 ? dep.slice(0,2) : dep) : '';
+      const url = 'https://geo.api.gouv.fr/communes?nom=' + encodeURIComponent(q) + depParam + '&fields=nom,code,codeDepartement&boost=population&limit=8';
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        comResults = data;
+        comIndex = -1;
+        document.getElementById('f-com-search').classList.remove('loading');
+        renderDropdown(data);
+      } catch(e) {
+        document.getElementById('f-com-search').classList.remove('loading');
+        hideDropdown();
+      }
+    }
+
+    function renderDropdown(items) {
+      const dd = document.getElementById('com-dropdown');
+      if(!items.length) { dd.innerHTML = '<div style="padding:10px 12px;font-size:13px;color:#aaa;">Aucune commune trouvée</div>'; dd.style.display='block'; return; }
+      dd.innerHTML = items.map((c, i) => {
+        const codeInsee = c.code.slice(-3);
+        return `<div class="com-item" data-i="${i}" onmousedown="selectCommune(${i})">
+          <span class="com-item-name">${c.nom} <span style="font-size:11px;color:#aaa;font-weight:400;">(${c.codeDepartement})</span></span>
+          <span class="com-item-code">${codeInsee}</span>
+        </div>`;
+      }).join('');
+      dd.style.display = 'block';
+    }
+
+    function selectCommune(i) {
+      const c = comResults[i];
+      if(!c) return;
+      const codeInsee = c.code.slice(-3);
+      document.getElementById('f-com-search').value = c.nom;
+      document.getElementById('f-com-search').classList.add('selected');
+      document.getElementById('f-com-search').classList.remove('loading');
+      document.getElementById('f-com').value = codeInsee;
+      document.getElementById('com-badge-wrap').innerHTML =
+        `<span class="com-badge">${codeInsee}</span>`;
+      comLocked = true;
+      hideDropdown();
+      buildFromForm();
+    }
+
+    function onComKey(e) {
+      const dd = document.getElementById('com-dropdown');
+      if(dd.style.display === 'none') return;
+      const items = dd.querySelectorAll('.com-item');
+      if(e.key === 'ArrowDown') { e.preventDefault(); comIndex = Math.min(comIndex+1, items.length-1); items.forEach((el,i)=>el.classList.toggle('active',i===comIndex)); }
+      else if(e.key === 'ArrowUp') { e.preventDefault(); comIndex = Math.max(comIndex-1, 0); items.forEach((el,i)=>el.classList.toggle('active',i===comIndex)); }
+      else if(e.key === 'Enter') { e.preventDefault(); if(comIndex >= 0) selectCommune(comIndex); }
+      else if(e.key === 'Escape') hideDropdown();
+    }
+
+    function onComFocus() { if(comResults.length && !comLocked) renderDropdown(comResults); }
+    function onComBlur()  { setTimeout(hideDropdown, 150); }
+    function hideDropdown() { document.getElementById('com-dropdown').style.display = 'none'; }
+
+    function buildFromForm() {
+      const anneeRaw = document.getElementById('f-annee').value.trim();
+      const mois     = document.getElementById('f-mois').value;
+      const dep      = document.getElementById('f-dep').value;
+      const comRaw   = document.getElementById('f-com').value.trim();
+      const ordRaw   = document.getElementById('f-ord').value.trim();
+
+      if(!anneeRaw || !mois || !dep) {
+        if(anneeRaw) {
+          const annee = String(anneeRaw).slice(-2).padStart(2,'0');
+          let partial = selectedGender + annee + (mois || '');
+          document.getElementById('nir').value = partial;
+          onInput(document.getElementById('nir'));
+        }
+        return;
+      }
+
+      const annee = String(anneeRaw).slice(-2).padStart(2,'0');
+      const depCode = dep.length > 2 ? dep.slice(0,2) : dep;
+      const com = comRaw.padStart(3,'0').slice(-3);
+      const ord = ordRaw ? ordRaw.padStart(3,'0').slice(-3) : '';
+
+      let nirBase = selectedGender + annee + mois + depCode.padStart(2,'0').slice(-2) + com + ord;
+      document.getElementById('nir').value = nirBase;
+      onInput(document.getElementById('nir'));
+    }
+
+    function generateNir() {
+      buildFromForm();
+      const nirEl = document.getElementById('nir');
+      const n = cleanNir(nirEl.value);
+      const btn = document.getElementById('gen-btn');
+      if(n.length === 13) {
+        const cle = calcCle(n);
+        if(cle !== null) {
+          const full = n + pad(cle, 2);
+          nirEl.value = full;
+          onInput(nirEl);
+          navigator.clipboard.writeText(full).then(() => {
+            btn.textContent = 'NIR copié dans le presse-papier !';
+            btn.style.background = '#E1F5EE';
+            btn.style.borderColor = '#1D9E75';
+            btn.style.color = '#0F6E56';
+            setTimeout(() => {
+              btn.textContent = 'Calculer la clé et remplir le NIR ↓';
+              btn.style.background = '';
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 2200);
+          }).catch(() => {
+            btn.textContent = 'Calculer la clé et remplir le NIR ↓';
+          });
+        }
+      } else if(n.length < 13) {
+        document.getElementById('status-text').textContent = 'Remplissez tous les champs avant de générer la clé.';
+        document.getElementById('status-dot').style.background = '#D85A30';
+        document.getElementById('status-bar').style.borderColor = '#D85A30';
+      }
+    }
+
+    function decode(raw) {
+      const n = cleanNir(raw);
+      if(n.length < 1) return null;
+      const sexe = n.slice(0,1), annee = n.slice(1,3), mois = n.slice(3,5);
+      const dep  = n.slice(5,7), com   = n.slice(7,10), ord  = n.slice(10,13), cle = n.slice(13,15);
+      const segs = [];
+      if(sexe) {
+        const ok = sexe==='1'||sexe==='2'||sexe==='3';
+        const label = sexe==='1'?'Homme':sexe==='2'?'Femme':sexe==='3'?'Né(e) à l\'étranger':'Inconnu';
+        segs.push({ key:'Sexe', value:sexe, desc:ok?label:'Valeur invalide (1, 2 ou 3)', state:ok?'ok':'err' });
+      }
+      if(n.length>1) segs.push({ key:'Année de naissance', value:annee, desc:annee.length===2?'19'+annee+' / 20'+annee:'…', state:annee.length===2?'ok':'warn' });
+      if(n.length>3) {
+        const m = parseInt(mois);
+        const okMois = m>=1&&m<=12;
+        const moisNoms = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        segs.push({ key:'Mois de naissance', value:mois, desc:mois.length===2?(okMois?moisNoms[m]:'Mois invalide'):'…', state:mois.length<2?'warn':okMois?'ok':'err' });
+      }
+      if(n.length>5) {
+        const depUpper = dep.replace(/2a/i,'2A').replace(/2b/i,'2B');
+        const depOk = DEPTS_VALIDES.has(depUpper)||dep==='97'||dep==='99';
+        const depLabel = dep==='75'?'Paris':dep==='69'?'Rhône':dep==='13'?'Bouches-du-Rhône':dep==='44'?'Loire-Atlantique':dep==='2A'?'Corse-du-Sud':dep==='2B'?'Haute-Corse':dep==='97'?'DOM':dep==='99'?'Étranger':'Département '+dep;
+        segs.push({ key:'Département', value:dep, desc:dep.length===2?(depOk?depLabel:'Code inconnu'):'…', state:dep.length<2?'warn':depOk?'ok':'err' });
+      }
+      if(n.length>7)  segs.push({ key:'Commune', value:com, desc:com.length===3?'Code commune INSEE':'…', state:com.length===3?'ok':'warn' });
+      if(n.length>10) segs.push({ key:'N° ordre', value:ord, desc:ord.length===3?'Ordre dans le registre':'…', state:ord.length===3?'ok':'warn' });
+      if(n.length===15) {
+        const attendu = calcCle(n.slice(0,13));
+        const cleInt = parseInt(cle);
+        const cleOk = attendu!==null&&cleInt===attendu;
+        segs.push({ key:'Clé de contrôle', value:cle, desc:attendu!==null?(cleOk?'Clé valide (attendu: '+attendu+')':'Attendu: '+attendu+', reçu: '+cleInt):'Calcul impossible', state:attendu===null?'warn':cleOk?'ok':'err' });
+      } else if(n.length>13) {
+        segs.push({ key:'Clé de contrôle', value:cle, desc:'Saisie en cours…', state:'warn' });
+      }
+      return segs;
+    }
+
+    function buildHighlight(raw) {
+      const n = cleanNir(raw);
+      if(!n) return '';
+      const parts = [{len:1,label:'S'},{len:2,label:'AA'},{len:2,label:'MM'},{len:2,label:'DEP'},{len:3,label:'COM'},{len:3,label:'ORD'},{len:2,label:'CLÉ'}];
+      let pos=0, html='';
+      parts.forEach((p,i) => {
+        const chunk = n.slice(pos,pos+p.len);
+        if(!chunk) return;
+        html += `<div class="hl-seg" style="background:${SEG_BG[i]};color:${SEG_COLORS[i]};" title="${p.label}">${chunk}</div>`;
+        pos += p.len;
+      });
+      return html;
+    }
+
+    function onInput(el) {
+      const raw = el.value;
+      const n = cleanNir(raw);
+      document.getElementById('highlight-box').innerHTML = buildHighlight(raw);
+      const segs = decode(raw);
+      const grid = document.getElementById('seg-grid');
+      const dot  = document.getElementById('status-dot');
+      const txt  = document.getElementById('status-text');
+      const bar  = document.getElementById('status-bar');
+      if(!segs||n.length===0) {
+        grid.innerHTML=''; dot.style.background='#bbb'; txt.textContent='Saisissez un NIR à 15 chiffres'; bar.style.borderColor='#ddd'; return;
+      }
+      grid.innerHTML = segs.map(s=>`<div class="seg ${s.state}"><p class="seg-label">${s.key}</p><p class="seg-value">${s.value}</p><p class="seg-desc">${s.desc}</p></div>`).join('');
+      const hasErr = segs.some(s=>s.state==='err');
+      const complete = n.length===15;
+      if(!complete) { dot.style.background='#BA7517'; txt.textContent=n.length+' / 15 chiffres saisis'; bar.style.borderColor='#BA7517'; }
+      else if(hasErr) { dot.style.background='#D85A30'; txt.textContent='NIR invalide — une ou plusieurs erreurs détectées'; bar.style.borderColor='#D85A30'; }
+      else { dot.style.background='#1D9E75'; txt.textContent='NIR valide — clé de contrôle correcte'; bar.style.borderColor='#1D9E75'; }
+    }
+  </script>
+</body>
+</html>
