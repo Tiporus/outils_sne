@@ -6,70 +6,50 @@
   <title>Outils IA</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
       background: #f7f7f5;
     }
-
     .tab-bar {
-      display: flex;
-      flex-shrink: 0;
+      display: flex; flex-shrink: 0;
       border-bottom: 0.5px solid #e0e0dd;
-      background: #fff;
-      padding: 0 1.5rem;
+      background: #fff; padding: 0 1.5rem;
       box-shadow: 0 1px 4px rgba(0,0,0,.04);
     }
     .tab-btn {
-      padding: 14px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #aaa;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -0.5px;
-      transition: color .15s, border-color .15s;
-      font-family: inherit;
+      padding: 14px 20px; font-size: 13px; font-weight: 500;
+      color: #aaa; border: none; background: transparent; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -0.5px;
+      transition: color .15s, border-color .15s; font-family: inherit;
     }
     .tab-btn:hover { color: #1a1a1a; }
     .tab-btn.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
-
     .frames { flex: 1; position: relative; }
-
     .frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: none;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: none; display: none;
     }
     .frame.active { display: block; }
   </style>
 </head>
 <body>
-
   <div class="tab-bar">
-    <button class="tab-btn" data-tab="nir"    onclick="switchTab('nir', this)">Validateur NIR</button>
-    <button class="tab-btn" data-tab="cert"   onclick="switchTab('cert', this)">Certificat Encoder</button>
-    <button class="tab-btn" data-tab="base64" onclick="switchTab('base64', this)">Base64</button>
+    <button class="tab-btn" data-tab="nir"       onclick="switchTab('nir', this)">Validateur NIR</button>
+    <button class="tab-btn" data-tab="cert"      onclick="switchTab('cert', this)">Certificat Encoder</button>
+    <button class="tab-btn" data-tab="base64"    onclick="switchTab('base64', this)">Base64</button>
+    <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter', this)">JSON / XML</button>
   </div>
-
   <div class="frames">
-    <iframe id="frame-nir"    class="frame" src="validateur_nir.html"></iframe>
-    <iframe id="frame-cert"   class="frame" src="cert_encoder.html"></iframe>
-    <iframe id="frame-base64" class="frame" src="base64_encoder.html"></iframe>
+    <iframe id="frame-nir"       class="frame" src="validateur_nir.html"></iframe>
+    <iframe id="frame-cert"      class="frame" src="cert_encoder.html"></iframe>
+    <iframe id="frame-base64"    class="frame" src="base64_encoder.html"></iframe>
+    <iframe id="frame-formatter" class="frame" src="formatter.html"></iframe>
   </div>
-
   <script>
-    const TABS = ['nir', 'cert', 'base64'];
-
+    const TABS = ['nir', 'cert', 'base64', 'formatter'];
     function switchTab(name, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.frame').forEach(f => f.classList.remove('active'));
@@ -77,16 +57,13 @@
       document.getElementById('frame-' + name).classList.add('active');
       history.pushState(null, '', '#' + name);
     }
-
     function init() {
       const hash = location.hash.slice(1);
       const tab  = TABS.includes(hash) ? hash : 'nir';
       switchTab(tab);
     }
-
     window.addEventListener('popstate', init);
     init();
   </script>
-
 </body>
 </html>
