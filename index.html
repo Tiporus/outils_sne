@@ -56,17 +56,19 @@
 <body>
 
   <div class="tab-bar">
-    <button class="tab-btn" data-tab="nir"  onclick="switchTab('nir', this)">Validateur NIR</button>
-    <button class="tab-btn" data-tab="cert" onclick="switchTab('cert', this)">Certificat Encoder</button>
+    <button class="tab-btn" data-tab="nir"    onclick="switchTab('nir', this)">Validateur NIR</button>
+    <button class="tab-btn" data-tab="cert"   onclick="switchTab('cert', this)">Certificat Encoder</button>
+    <button class="tab-btn" data-tab="base64" onclick="switchTab('base64', this)">Base64</button>
   </div>
 
   <div class="frames">
-    <iframe id="frame-nir"  class="frame" src="validateur_nir.html"></iframe>
-    <iframe id="frame-cert" class="frame" src="cert_encoder.html"></iframe>
+    <iframe id="frame-nir"    class="frame" src="validateur_nir.html"></iframe>
+    <iframe id="frame-cert"   class="frame" src="cert_encoder.html"></iframe>
+    <iframe id="frame-base64" class="frame" src="base64_encoder.html"></iframe>
   </div>
 
   <script>
-    const TABS = ['nir', 'cert'];
+    const TABS = ['nir', 'cert', 'base64'];
 
     function switchTab(name, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
