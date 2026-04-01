@@ -15,23 +15,52 @@ export function mount(container) {
       <span class="rx-slash">/</span>
       <input type="text" id="rx-pattern" class="rx-pattern-input"
              placeholder="([A-Z][a-z]+)\\s+(\\d{4})"
-             oninput="rxRun()" spellcheck="false" autocomplete="off" />
+             spellcheck="false" autocomplete="off" />
       <span class="rx-slash">/</span>
-      <div class="rx-flags-wrap">
-        <label class="rx-flag-btn" title="global — toutes les correspondances">
-          <input type="checkbox" id="rx-flag-g" onchange="rxRun()" checked> g
-        </label>
-        <label class="rx-flag-btn" title="insensible à la casse">
-          <input type="checkbox" id="rx-flag-i" onchange="rxRun()"> i
-        </label>
-        <label class="rx-flag-btn" title="multiline — ^ et $ sur chaque ligne">
-          <input type="checkbox" id="rx-flag-m" onchange="rxRun()"> m
-        </label>
-        <label class="rx-flag-btn" title="dotAll — . correspond aussi aux sauts de ligne">
-          <input type="checkbox" id="rx-flag-s" onchange="rxRun()"> s
-        </label>
+      <button id="rx-copy-btn">Copier ↗</button>
+    </div>
+
+    <!-- Flags -->
+    <div class="rx-flags-section">
+      <p class="card-title" style="margin-bottom:8px;">Modificateurs (flags)</p>
+      <div class="rx-flags-grid">
+        <button class="rx-flag-card active" id="rx-flag-g" data-flag="g">
+          <div class="rx-flag-header">
+            <span class="rx-flag-letter">g</span>
+            <span class="rx-flag-name">global</span>
+            <span class="rx-flag-badge" id="rx-badge-g">actif</span>
+          </div>
+          <div class="rx-flag-desc">Trouve <strong>toutes</strong> les correspondances. Sans ce flag, la recherche s'arrête à la première occurrence.</div>
+          <div class="rx-flag-example"><code>/chat/g</code> → trouve "chat" partout dans le texte</div>
+        </button>
+        <button class="rx-flag-card" id="rx-flag-i" data-flag="i">
+          <div class="rx-flag-header">
+            <span class="rx-flag-letter">i</span>
+            <span class="rx-flag-name">insensible à la casse</span>
+            <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
+          </div>
+          <div class="rx-flag-desc">Ignore la différence majuscule/minuscule. <code>A</code> et <code>a</code> sont équivalents.</div>
+          <div class="rx-flag-example"><code>/java/i</code> → matche "Java", "JAVA", "jAvA"…</div>
+        </button>
+        <button class="rx-flag-card" id="rx-flag-m" data-flag="m">
+          <div class="rx-flag-header">
+            <span class="rx-flag-letter">m</span>
+            <span class="rx-flag-name">multiline</span>
+            <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
+          </div>
+          <div class="rx-flag-desc"><code>^</code> et <code>$</code> s'appliquent au début/fin de <strong>chaque ligne</strong>, pas de toute la chaîne.</div>
+          <div class="rx-flag-example"><code>/^\\d+/m</code> → matche les nombres en début de chaque ligne</div>
+        </button>
+        <button class="rx-flag-card" id="rx-flag-s" data-flag="s">
+          <div class="rx-flag-header">
+            <span class="rx-flag-letter">s</span>
+            <span class="rx-flag-name">dotAll</span>
+            <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
+          </div>
+          <div class="rx-flag-desc">Le <code>.</code> matche <strong>tous</strong> les caractères y compris les sauts de ligne <code>\\n</code>. Sans ce flag, <code>.</code> exclut <code>\\n</code>.</div>
+          <div class="rx-flag-example"><code>/&lt;div&gt;.*&lt;\\/div&gt;/s</code> → matche sur plusieurs lignes</div>
+        </button>
       </div>
-      <button id="rx-copy-btn" onclick="rxCopyExpr()">Copier ↗</button>
     </div>
 
     <!-- Status -->
@@ -44,7 +73,7 @@ export function mount(container) {
     <!-- Explication -->
     <div id="rx-explain-wrap" style="display:none;">
       <div class="sep"></div>
-      <p class="card-title" style="margin-bottom:.5rem;">Explication</p>
+      <p class="card-title" style="margin-bottom:.5rem;">Explication token par token</p>
       <div class="rx-explain" id="rx-explain"></div>
     </div>
   </div>
@@ -55,8 +84,6 @@ export function mount(container) {
     <div class="rx-test-area-wrap">
       <div id="rx-highlight-layer" class="rx-highlight-layer" aria-hidden="true"></div>
       <textarea id="rx-test-input" class="rx-test-textarea"
-                oninput="rxSyncScroll();rxRun()"
-                onscroll="rxSyncScroll()"
                 placeholder="Colle ou tape le texte à tester ici…"
                 spellcheck="false"></textarea>
     </div>
@@ -84,8 +111,8 @@ export function mount(container) {
   <div class="card" id="rx-export-card" style="display:none;">
     <p class="card-title">Code généré</p>
     <div class="rx-lang-toggle">
-      <button class="rx-lang-btn active" id="rx-lang-java" onclick="rxSetLang('java')">Java</button>
-      <button class="rx-lang-btn" id="rx-lang-js" onclick="rxSetLang('js')">JavaScript</button>
+      <button class="rx-lang-btn active" id="rx-lang-java">Java</button>
+      <button class="rx-lang-btn" id="rx-lang-js">JavaScript</button>
     </div>
     <div class="rx-code-block" id="rx-code"></div>
   </div>
@@ -98,7 +125,7 @@ export function mount(container) {
     const s = document.createElement('style');
     s.id = 'rx-style';
     s.textContent = `
-      .rx-expr-row { display:flex; align-items:center; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+      .rx-expr-row { display:flex; align-items:center; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
       .rx-slash { font-size:22px; color:var(--muted); font-family:monospace; line-height:1; }
       .rx-pattern-input {
         flex:1; min-width:200px; font-family:'JetBrains Mono','Fira Mono',monospace;
@@ -108,15 +135,33 @@ export function mount(container) {
       }
       .rx-pattern-input:focus { border-color:var(--accent); }
       .rx-pattern-input.err { border-color:#D85A30; background:#FAECE7; color:#993C1D; }
-      .rx-flags-wrap { display:flex; gap:4px; }
-      .rx-flag-btn {
-        display:flex; align-items:center; gap:4px; padding:6px 10px;
-        border-radius:7px; border:0.5px solid var(--border); background:var(--surface);
-        color:var(--muted); font-size:13px; font-family:monospace; font-weight:600;
-        cursor:pointer; transition:background .12s, color .12s; user-select:none;
+
+      /* Flags grid */
+      .rx-flags-section { margin-bottom:12px; }
+      .rx-flags-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+      @media(max-width:580px){ .rx-flags-grid { grid-template-columns:1fr; } }
+      .rx-flag-card {
+        display:flex; flex-direction:column; gap:5px;
+        padding:10px 12px; border-radius:9px;
+        border:0.5px solid var(--border); background:var(--surface2);
+        cursor:pointer; text-align:left; font-family:inherit;
+        transition:border-color .15s, background .15s;
       }
-      .rx-flag-btn:has(input:checked) { background:#E6F1FB; color:#0C447C; border-color:#85B7EB; }
-      .rx-flag-btn input { display:none; }
+      .rx-flag-card:hover { border-color:var(--accent); background:var(--input-bg); }
+      .rx-flag-card.active { border-color:#85B7EB; background:#E6F1FB; }
+      .dark .rx-flag-card.active { border-color:#388bfd; background:#1c2d3f; }
+      .rx-flag-header { display:flex; align-items:center; gap:7px; }
+      .rx-flag-letter { font-family:monospace; font-size:17px; font-weight:700; color:var(--muted); width:20px; }
+      .rx-flag-card.active .rx-flag-letter { color:#0C447C; }
+      .dark .rx-flag-card.active .rx-flag-letter { color:#58a6ff; }
+      .rx-flag-name { font-size:12px; font-weight:600; color:var(--text); }
+      .rx-flag-badge { margin-left:auto; font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; background:#0C447C; color:#fff; text-transform:uppercase; letter-spacing:.04em; }
+      .dark .rx-flag-badge { background:#388bfd; }
+      .rx-flag-desc { font-size:12px; color:var(--muted); line-height:1.45; }
+      .rx-flag-desc strong { color:var(--text); font-weight:600; }
+      .rx-flag-desc code, .rx-flag-example code { font-family:monospace; font-size:11px; background:var(--input-bg); padding:1px 4px; border-radius:3px; }
+      .rx-flag-card.active .rx-flag-desc code, .rx-flag-card.active .rx-flag-example code { background:rgba(12,68,124,0.1); }
+      .rx-flag-example { font-size:11px; color:var(--muted2); }
 
       .rx-status { display:flex; align-items:center; gap:8px; padding:9px 13px; border-radius:8px; border:0.5px solid var(--border); font-size:13px; color:var(--text); }
       .rx-match-count { margin-left:auto; font-size:12px; font-weight:600; color:var(--accent); }
@@ -268,32 +313,72 @@ export function mount(container) {
 
   // ── Render bibliothèque ──
   document.getElementById('rx-lib-grid').innerHTML = LIBRARY.map((item, i) =>
-    `<div class="rx-lib-item" onclick="rxApplyLib(${i})">
+    `<div class="rx-lib-item" data-idx="${i}">
       <div class="rx-lib-label">${item.label}</div>
       <div class="rx-lib-pattern">${escHtml(item.pattern)}</div>
       <div class="rx-lib-desc">${item.desc}</div>
     </div>`
   ).join('');
 
-  window.rxApplyLib = i => {
-    const item = LIBRARY[i];
-    document.getElementById('rx-pattern').value = item.pattern;
-    // Appliquer les flags
-    const flags = item.flags || 'g';
-    document.getElementById('rx-flag-g').checked = flags.includes('g');
-    document.getElementById('rx-flag-i').checked = flags.includes('i');
-    document.getElementById('rx-flag-m').checked = flags.includes('m');
-    document.getElementById('rx-flag-s').checked = flags.includes('s');
-    rxRun();
-  };
+  document.getElementById('rx-lib-grid').querySelectorAll('.rx-lib-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const item = LIBRARY[+el.dataset.idx];
+      document.getElementById('rx-pattern').value = item.pattern;
+      const flags = item.flags || 'g';
+      setFlag('g', flags.includes('g'));
+      setFlag('i', flags.includes('i'));
+      setFlag('m', flags.includes('m'));
+      setFlag('s', flags.includes('s'));
+      rxRun();
+    });
+  });
+
+  // ── State flags ──
+  const flagState = { g: true, i: false, m: false, s: false };
+
+  function setFlag(f, val) {
+    flagState[f] = val;
+    const btn = document.getElementById(`rx-flag-${f}`);
+    const badge = document.getElementById(`rx-badge-${f}`);
+    btn.classList.toggle('active', val);
+    badge.style.display = val ? '' : 'none';
+  }
+
+  // ── Event listeners flags ──
+  ['g','i','m','s'].forEach(f => {
+    document.getElementById(`rx-flag-${f}`).addEventListener('click', () => {
+      setFlag(f, !flagState[f]);
+      rxRun();
+    });
+  });
+
+  // ── Event listeners pattern + textarea ──
+  document.getElementById('rx-pattern').addEventListener('input', rxRun);
+  document.getElementById('rx-test-input').addEventListener('input', () => { rxSyncScroll(); rxRun(); });
+  document.getElementById('rx-test-input').addEventListener('scroll', rxSyncScroll);
+
+  // ── Copier ──
+  document.getElementById('rx-copy-btn').addEventListener('click', () => {
+    const pattern = document.getElementById('rx-pattern').value;
+    if (!pattern) return;
+    navigator.clipboard.writeText(pattern).then(() => {
+      const btn = document.getElementById('rx-copy-btn');
+      btn.textContent = 'Copié !'; btn.classList.add('success');
+      setTimeout(() => { btn.textContent = 'Copier ↗'; btn.classList.remove('success'); }, 2200);
+    });
+  });
+
+  // ── Lang toggle ──
+  document.getElementById('rx-lang-java').addEventListener('click', () => rxSetLang('java'));
+  document.getElementById('rx-lang-js').addEventListener('click',   () => rxSetLang('js'));
 
   // ── Run principal ──
-  window.rxRun = () => {
+  function rxRun() {
     const pattern = document.getElementById('rx-pattern').value;
-    const flagG = document.getElementById('rx-flag-g').checked;
-    const flagI = document.getElementById('rx-flag-i').checked;
-    const flagM = document.getElementById('rx-flag-m').checked;
-    const flagS = document.getElementById('rx-flag-s').checked;
+    const flagG = flagState.g;
+    const flagI = flagState.i;
+    const flagM = flagState.m;
+    const flagS = flagState.s;
     const testText = document.getElementById('rx-test-input').value;
     const patInput = document.getElementById('rx-pattern');
     const dot = document.getElementById('rx-dot');
@@ -394,12 +479,12 @@ export function mount(container) {
     layer.innerHTML = result;
   }
 
-  window.rxSyncScroll = () => {
+  function rxSyncScroll() {
     const ta = document.getElementById('rx-test-input');
     const layer = document.getElementById('rx-highlight-layer');
     layer.scrollTop = ta.scrollTop;
     layer.scrollLeft = ta.scrollLeft;
-  };
+  }
 
   // ── Correspondances ──
   function renderMatches(matches) {
@@ -492,20 +577,16 @@ export function mount(container) {
   }
 
   // ── Code généré ──
-  window.rxSetLang = lang => {
+  function rxSetLang(lang) {
     rxLang = lang;
     document.getElementById('rx-lang-java').classList.toggle('active', lang==='java');
     document.getElementById('rx-lang-js').classList.toggle('active',   lang==='js');
     const pattern = document.getElementById('rx-pattern').value;
-    const flags = getFlags();
-    if (pattern) renderCode(pattern, flags);
-  };
+    if (pattern) renderCode(pattern, getFlags());
+  }
 
   function getFlags() {
-    return (document.getElementById('rx-flag-g').checked?'g':'') +
-           (document.getElementById('rx-flag-i').checked?'i':'') +
-           (document.getElementById('rx-flag-m').checked?'m':'') +
-           (document.getElementById('rx-flag-s').checked?'s':'');
+    return (flagState.g?'g':'') + (flagState.i?'i':'') + (flagState.m?'m':'') + (flagState.s?'s':'');
   }
 
   function renderCode(pattern, flags) {
@@ -548,17 +629,6 @@ export function mount(container) {
     }
     document.getElementById('rx-code').innerHTML = code;
   }
-
-  // ── Copier ──
-  window.rxCopyExpr = () => {
-    const pattern = document.getElementById('rx-pattern').value;
-    if (!pattern) return;
-    navigator.clipboard.writeText(pattern).then(() => {
-      const btn = document.getElementById('rx-copy-btn');
-      btn.textContent = 'Copié !'; btn.classList.add('success');
-      setTimeout(() => { btn.textContent = 'Copier ↗'; btn.classList.remove('success'); }, 2200);
-    });
-  };
 
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
