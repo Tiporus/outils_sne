@@ -319,6 +319,8 @@
     <button class="tab-btn" data-tab="cert"      onclick="switchTab('cert',this)">Certificat Encoder</button>
     <button class="tab-btn" data-tab="base64"    onclick="switchTab('base64',this)">Base64</button>
     <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter',this)">JSON / XML</button>
+    <button class="tab-btn" data-tab="cron"      onclick="switchTab('cron',this)">CRON</button>
+    <button class="tab-btn" data-tab="regex"     onclick="switchTab('regex',this)">Regex</button>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
       <span id="theme-icon">🌙</span><span id="theme-label">Sombre</span>
     </button>
@@ -330,12 +332,16 @@
     import { meta as certMeta,      mount as certMount      } from './tools/cert.js';
     import { meta as b64Meta,       mount as b64Mount       } from './tools/base64.js';
     import { meta as formatterMeta, mount as formatterMount } from './tools/formatter.js';
+    import { meta as cronMeta,       mount as cronMount       } from './tools/cron.js';
+    import { meta as regexMeta,      mount as regexMount      } from './tools/regex.js';
 
     const TOOLS = [
       { ...nirMeta,       mount: nirMount       },
       { ...certMeta,      mount: certMount      },
       { ...b64Meta,       mount: b64Mount       },
       { ...formatterMeta, mount: formatterMount },
+      { ...cronMeta,       mount: cronMount       },
+      { ...regexMeta,      mount: regexMount      },
     ];
 
     const container = document.getElementById('tool-container');
