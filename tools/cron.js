@@ -107,16 +107,16 @@ export function mount(container) {
     <div class="cron-builder" id="cron-builder"></div>
   </div>
 
-  <!-- Expressions fréquentes -->
-  <div class="card">
-    <p class="card-title">Expressions fréquentes</p>
-    <div class="cron-shortcuts" id="cron-shortcuts"></div>
-  </div>
-
   <!-- Prochaines exécutions -->
   <div class="card" id="cron-next-card" style="display:none;">
     <p class="card-title">Prochaines exécutions</p>
     <div class="cron-next-list" id="cron-next-list"></div>
+  </div>
+
+  <!-- Expressions fréquentes -->
+  <div class="card">
+    <p class="card-title">Expressions fréquentes</p>
+    <div class="cron-shortcuts" id="cron-shortcuts"></div>
   </div>
 
   <!-- Code Spring -->
