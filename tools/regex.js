@@ -7,10 +7,8 @@ export function mount(container) {
     <h1>Testeur de Regex</h1>
     <p class="page-desc">Teste, explique et décompose tes expressions régulières. Support Java, JavaScript et mode PCRE.</p>
   </div>
-
-  <div class="cards-row">
   <!-- Expression + flags -->
-  <div class="card card-xl">
+  <div class="card">
     <p class="card-title">Expression régulière</p>
     <div class="rx-expr-row">
       <span class="rx-slash">/</span>
@@ -80,7 +78,7 @@ export function mount(container) {
   </div>
 
   <!-- Texte de test -->
-  <div class="card card-lg">
+  <div class="card">
     <p class="card-title">Texte de test</p>
     <div class="rx-test-area-wrap">
       <div id="rx-highlight-layer" class="rx-highlight-layer" aria-hidden="true"></div>
@@ -89,31 +87,25 @@ export function mount(container) {
                 spellcheck="false"></textarea>
     </div>
   </div>
-
-  </div><!-- end cards-row 1 -->
-  <div class="cards-row">
   <!-- Groupes capturants -->
-  <div class="card card-md" id="rx-groups-card" style="display:none;">
+  <div class="card" id="rx-groups-card" style="display:none;">
     <p class="card-title">Groupes capturants</p>
     <div id="rx-groups-list"></div>
   </div>
 
   <!-- Correspondances détaillées -->
-  <div class="card card-md" id="rx-matches-card" style="display:none;">
+  <div class="card" id="rx-matches-card" style="display:none;">
     <p class="card-title">Correspondances</p>
     <div id="rx-matches-list"></div>
   </div>
-
-  </div><!-- end cards-row 2 -->
-  <div class="cards-row">
   <!-- Bibliothèque de patterns -->
-  <div class="card card-xl">
+  <div class="card">
     <p class="card-title">Bibliothèque de patterns</p>
     <div class="rx-lib-grid" id="rx-lib-grid"></div>
   </div>
 
   <!-- Export Java / JS -->
-  <div class="card card-lg" id="rx-export-card" style="display:none;">
+  <div class="card" id="rx-export-card" style="display:none;">
     <p class="card-title">Code généré</p>
     <div class="rx-lang-toggle">
       <button class="rx-lang-btn active" id="rx-lang-java">Java</button>
@@ -121,8 +113,6 @@ export function mount(container) {
     </div>
     <div class="rx-code-block" id="rx-code"></div>
   </div>
-
-  </div><!-- end cards-row 3 -->
   <p class="note">Tout est calculé localement dans votre navigateur.</p>
 </div>`;
 
