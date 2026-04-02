@@ -170,24 +170,16 @@
     }
 
     /* ── Shared tool styles ── */
-    .tool-wrap {
-      max-width: 1600px; margin: 0 auto; padding: 1rem 1rem 2rem;
+    .page-header {
+      max-width: 1400px; margin: 1rem auto 0.75rem; padding: 0 1rem;
     }
-    .page-header { margin-bottom: 1rem; }
 
-    /* Layout 2 colonnes sans trous avec CSS columns */
-    #tool-container > div > .tool-wrap {
-      columns: 1; column-gap: 1rem;
-    }
-    .card {
-      break-inside: avoid;
-      margin-bottom: 1rem;
-      display: block;
-    }
-    @media (min-width: 860px) {
-      #tool-container > div > .tool-wrap { columns: 2; }
-      .tool-wrap { max-width: 1400px; }
-    }
+    /* Layout columns */
+    .tool-wrap { columns: 1; column-gap: 1rem; padding: 0; }
+    .card { break-inside: avoid; margin-bottom: 1rem; display: block; }
+
+    @media (min-width: 860px)  { .tool-wrap { columns: 2; } }
+    @media (min-width: 1100px) { .tool-wrap { columns: 3; } }
     .page-header { margin-bottom: 1.5rem; }
     h1 { font-size: 18px; font-weight: 500; margin: 0 0 .35rem; color: var(--text); }
     .page-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
@@ -392,7 +384,6 @@
 
     /* ── Responsive global ── */
     @media (max-width: 640px) {
-      .tool-wrap { margin: 1rem auto; padding: 0 0.75rem 1.5rem; }
       .card { padding: 1rem; }
       h1 { font-size: 16px; }
       .form-grid { grid-template-columns: 1fr; }
