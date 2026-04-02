@@ -6,7 +6,7 @@ export function mount(container) {
     <h1>Testeur de Regex</h1>
     <p class="page-desc">Teste, explique et décompose tes expressions régulières. Support Java, JavaScript et mode PCRE.</p>
   </div>
-<div class="tool-wrap">
+<div class="tool-wrap cols-3">
   <!-- Expression + flags -->
   <div class="card">
     <p class="card-title">Expression régulière</p>
@@ -27,37 +27,33 @@ export function mount(container) {
           <div class="rx-flag-header">
             <span class="rx-flag-letter">g</span>
             <span class="rx-flag-name">global</span>
+            <span class="rx-flag-hint">Toutes les correspondances</span>
             <span class="rx-flag-badge" id="rx-badge-g">actif</span>
           </div>
-          <div class="rx-flag-desc">Trouve <strong>toutes</strong> les correspondances. Sans ce flag, la recherche s'arrête à la première occurrence.</div>
-          <div class="rx-flag-example"><code>/chat/g</code> → trouve "chat" partout dans le texte</div>
         </button>
         <button class="rx-flag-card" id="rx-flag-i" data-flag="i">
           <div class="rx-flag-header">
             <span class="rx-flag-letter">i</span>
             <span class="rx-flag-name">insensible à la casse</span>
+            <span class="rx-flag-hint">Ignore majuscules / minuscules</span>
             <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
           </div>
-          <div class="rx-flag-desc">Ignore la différence majuscule/minuscule. <code>A</code> et <code>a</code> sont équivalents.</div>
-          <div class="rx-flag-example"><code>/java/i</code> → matche "Java", "JAVA", "jAvA"…</div>
         </button>
         <button class="rx-flag-card" id="rx-flag-m" data-flag="m">
           <div class="rx-flag-header">
             <span class="rx-flag-letter">m</span>
             <span class="rx-flag-name">multiline</span>
+            <span class="rx-flag-hint">^ et $ sur chaque ligne</span>
             <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
           </div>
-          <div class="rx-flag-desc"><code>^</code> et <code>$</code> s'appliquent au début/fin de <strong>chaque ligne</strong>, pas de toute la chaîne.</div>
-          <div class="rx-flag-example"><code>/^\\d+/m</code> → matche les nombres en début de chaque ligne</div>
         </button>
         <button class="rx-flag-card" id="rx-flag-s" data-flag="s">
           <div class="rx-flag-header">
             <span class="rx-flag-letter">s</span>
             <span class="rx-flag-name">dotAll</span>
+            <span class="rx-flag-hint">. inclut les sauts de ligne</span>
             <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
           </div>
-          <div class="rx-flag-desc">Le <code>.</code> matche <strong>tous</strong> les caractères y compris les sauts de ligne <code>\\n</code>. Sans ce flag, <code>.</code> exclut <code>\\n</code>.</div>
-          <div class="rx-flag-example"><code>/&lt;div&gt;.*&lt;\\/div&gt;/s</code> → matche sur plusieurs lignes</div>
         </button>
       </div>
     </div>
@@ -69,12 +65,12 @@ export function mount(container) {
       <span class="rx-match-count" id="rx-match-count"></span>
     </div>
 
-    <!-- Explication -->
-    <div id="rx-explain-wrap" style="display:none;">
-      <div class="sep"></div>
-      <p class="card-title" style="margin-bottom:.5rem;">Explication token par token</p>
-      <div class="rx-explain" id="rx-explain"></div>
-    </div>
+  </div>
+
+  <!-- Explication token par token -->
+  <div class="card" id="rx-explain-wrap" style="display:none;">
+    <p class="card-title">Explication token par token</p>
+    <div class="rx-explain" id="rx-explain"></div>
   </div>
 
   <!-- Texte de test -->
@@ -98,9 +94,9 @@ export function mount(container) {
     <p class="card-title">Correspondances</p>
     <div id="rx-matches-list"></div>
   </div>
-  <!-- Bibliothèque de patterns -->
+  <!-- Expressions fréquentes -->
   <div class="card">
-    <p class="card-title">Bibliothèque de patterns</p>
+    <p class="card-title">Expressions fréquentes</p>
     <div class="rx-lib-grid" id="rx-lib-grid"></div>
   </div>
 
@@ -155,18 +151,14 @@ export function mount(container) {
       .rx-flag-card:hover { border-color:var(--accent); background:var(--input-bg); }
       .rx-flag-card.active { border-color:#85B7EB; background:#E6F1FB; }
       .dark .rx-flag-card.active { border-color:#388bfd; background:#1c2d3f; }
-      .rx-flag-header { display:flex; align-items:center; gap:7px; }
+      .rx-flag-header { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+      .rx-flag-hint { font-size:11px; color:var(--muted); flex:1; text-align:right; }
       .rx-flag-letter { font-family:monospace; font-size:17px; font-weight:700; color:var(--muted); width:20px; }
       .rx-flag-card.active .rx-flag-letter { color:#0C447C; }
       .dark .rx-flag-card.active .rx-flag-letter { color:#58a6ff; }
       .rx-flag-name { font-size:12px; font-weight:600; color:var(--text); }
       .rx-flag-badge { margin-left:auto; font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; background:#0C447C; color:#fff; text-transform:uppercase; letter-spacing:.04em; }
       .dark .rx-flag-badge { background:#388bfd; }
-      .rx-flag-desc { font-size:12px; color:var(--muted); line-height:1.45; }
-      .rx-flag-desc strong { color:var(--text); font-weight:600; }
-      .rx-flag-desc code, .rx-flag-example code { font-family:monospace; font-size:11px; background:var(--input-bg); padding:1px 4px; border-radius:3px; }
-      .rx-flag-card.active .rx-flag-desc code, .rx-flag-card.active .rx-flag-example code { background:rgba(12,68,124,0.1); }
-      .rx-flag-example { font-size:11px; color:var(--muted2); }
 
       .rx-status { display:flex; align-items:center; gap:8px; padding:9px 13px; border-radius:8px; border:0.5px solid var(--border); font-size:13px; color:var(--text); }
       .rx-match-count { margin-left:auto; font-size:12px; font-weight:600; color:var(--accent); }
