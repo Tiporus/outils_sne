@@ -93,6 +93,7 @@
       transition: background .2s, border-color .2s;
       overflow-x: auto; overflow-y: hidden;
       scrollbar-width: none; height: var(--tabbar-h);
+      position: relative; z-index: 200;
     }
     .tab-bar::-webkit-scrollbar { display: none; }
     .tab-btn {
@@ -114,6 +115,54 @@
     }
     .theme-btn:hover { color: var(--tab-active); background: rgba(128,128,128,0.08); }
 
+    /* ── Burger button ── */
+    .burger-btn {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      padding: 8px 12px; background: transparent; border: none; cursor: pointer;
+      flex-shrink: 0; height: var(--tabbar-h);
+    }
+    .burger-btn span {
+      display: block; width: 20px; height: 2px;
+      background: var(--tab-color); border-radius: 2px;
+      transition: background .15s, transform .2s, opacity .2s;
+    }
+    .burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger-btn.open span:nth-child(2) { opacity: 0; }
+    .burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── Drawer mobile ── */
+    .nav-drawer {
+      display: none; position: fixed; top: var(--tabbar-h); left: 0; right: 0;
+      background: var(--bar-bg); border-bottom: 1px solid var(--bar-border);
+      flex-direction: column; z-index: 199;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      transform: translateY(-10px); opacity: 0;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+    .nav-drawer.open {
+      display: flex; transform: translateY(0); opacity: 1;
+    }
+    .nav-drawer .tab-btn {
+      padding: 14px 20px; border-bottom: none;
+      border-left: 3px solid transparent; text-align: left;
+      font-size: 14px; width: 100%;
+    }
+    .nav-drawer .tab-btn.active {
+      border-left-color: var(--tab-active); border-bottom-color: transparent;
+      background: var(--surface2);
+    }
+    .nav-drawer-overlay {
+      display: none; position: fixed; inset: 0; z-index: 198;
+    }
+    .nav-drawer-overlay.open { display: block; }
+
+    /* ── Responsive burger ── */
+    @media (max-width: 640px) {
+      .burger-btn { display: flex; }
+      .tab-bar .tab-btn { display: none; }
+      .tab-bar { overflow: visible; }
+    }
+
     /* ── Tool container ── */
     #tool-container {
       flex: 1; overflow-y: auto; overflow-x: hidden;
@@ -126,18 +175,22 @@
     }
     .page-header { margin-bottom: 1rem; }
 
-    /* Layout flex pour les cards */
+    /* Layout 2 colonnes sans trous avec CSS columns */
     .cards-row {
-      display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;
+      columns: 1; column-gap: 1rem;
     }
-    /* Par défaut chaque card prend toute la largeur */
-    .card { flex: 1 1 100%; min-width: 280px; }
-    /* Variantes de largeur */
-    .card-sm  { flex: 1 1 260px; }
-    .card-md  { flex: 1 1 340px; }
-    .card-lg  { flex: 1 1 460px; }
-    .card-xl  { flex: 1 1 560px; }
-    .card-full { flex: 1 1 100%; }
+    .card {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    /* Les variantes de taille ne font rien en mode columns — on garde les classes pour sémantique */
+    .card-sm, .card-md, .card-lg, .card-xl, .card-full {}
+
+    @media (min-width: 860px) {
+      .cards-row { columns: 2; }
+      .tool-wrap  { max-width: 1400px; }
+    }
     .page-header { margin-bottom: 1.5rem; }
     h1 { font-size: 18px; font-weight: 500; margin: 0 0 .35rem; color: var(--text); }
     .page-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
@@ -360,17 +413,39 @@
   </style>
 </head>
 <body>
+  <!-- Overlay ferme le drawer -->
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+
   <div class="tab-bar">
+    <!-- Burger (mobile uniquement) -->
+    <button class="burger-btn" id="burger-btn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <!-- Onglets desktop -->
     <button class="tab-btn" data-tab="nir"       onclick="switchTab('nir',this)">Validateur NIR</button>
     <button class="tab-btn" data-tab="cert"      onclick="switchTab('cert',this)">Certificat Encoder</button>
     <button class="tab-btn" data-tab="base64"    onclick="switchTab('base64',this)">Base64</button>
     <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter',this)">JSON / XML</button>
     <button class="tab-btn" data-tab="cron"      onclick="switchTab('cron',this)">CRON</button>
     <button class="tab-btn" data-tab="regex"     onclick="switchTab('regex',this)">Regex</button>
+
+    <!-- Thème toujours visible -->
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
       <span id="theme-icon">🌙</span><span id="theme-label">Sombre</span>
     </button>
   </div>
+
+  <!-- Drawer mobile -->
+  <div class="nav-drawer" id="nav-drawer">
+    <button class="tab-btn" data-tab="nir"       onclick="switchTab('nir')">Validateur NIR</button>
+    <button class="tab-btn" data-tab="cert"      onclick="switchTab('cert')">Certificat Encoder</button>
+    <button class="tab-btn" data-tab="base64"    onclick="switchTab('base64')">Base64</button>
+    <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter')">JSON / XML</button>
+    <button class="tab-btn" data-tab="cron"      onclick="switchTab('cron')">CRON</button>
+    <button class="tab-btn" data-tab="regex"     onclick="switchTab('regex')">Regex</button>
+  </div>
+
   <div id="tool-container"></div>
 
   <script type="module">
@@ -393,9 +468,38 @@
     const container = document.getElementById('tool-container');
     let currentTab = null;
 
+    // ── Burger menu ──
+    const burgerBtn  = document.getElementById('burger-btn');
+    const navDrawer  = document.getElementById('nav-drawer');
+    const navOverlay = document.getElementById('nav-overlay');
+
+    function openDrawer() {
+      burgerBtn.classList.add('open');
+      navDrawer.classList.add('open');
+      navOverlay.classList.add('open');
+    }
+    function closeDrawer() {
+      burgerBtn.classList.remove('open');
+      navDrawer.classList.remove('open');
+      navOverlay.classList.remove('open');
+    }
+    burgerBtn.addEventListener('click', () =>
+      navDrawer.classList.contains('open') ? closeDrawer() : openDrawer()
+    );
+    navOverlay.addEventListener('click', closeDrawer);
+
     window.switchTab = (name, btn) => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      (btn || document.querySelector(`[data-tab="${name}"]`)).classList.add('active');
+      // Sync desktop tabs
+      document.querySelectorAll('.tab-bar .tab-btn').forEach(b => b.classList.remove('active'));
+      const desktopBtn = btn || document.querySelector(`.tab-bar [data-tab="${name}"]`);
+      if (desktopBtn) desktopBtn.classList.add('active');
+
+      // Sync drawer tabs
+      document.querySelectorAll('.nav-drawer .tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === name);
+      });
+
+      closeDrawer();
 
       if (currentTab === name) return;
       currentTab = name;
