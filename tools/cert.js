@@ -7,16 +7,20 @@ export function mount(container) {
     <h1>Certificat Encoder</h1>
     <p class="page-desc">Encode un certificat PEM en remplaçant les sauts de ligne par <code>%0a</code> et les espaces par <code>%20</code>.</p>
   </div>
-  <div class="card">
-    <label>Certificat (entrée brute)</label>
-    <textarea id="cert-input" placeholder="Colle ton certificat ici…&#10;-----BEGIN CERTIFICATE-----&#10;MIIBxTCCAW...&#10;-----END CERTIFICATE-----" oninput="certUpdate()"></textarea>
-    <div class="sep"></div>
-    <div class="row">
-      <label style="margin:0">Résultat encodé</label>
-      <span class="badge" id="cert-count">— car.</span>
-      <button id="cert-copy-btn" onclick="certCopy()">Copier ↗</button>
+  <div class="cards-row">
+    <div class="card card-lg">
+      <p class="card-title">Certificat (entrée brute)</p>
+      <label>Colle ton certificat PEM ici</label>
+      <textarea id="cert-input" style="min-height:200px" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIBxTCCAW...&#10;-----END CERTIFICATE-----" oninput="certUpdate()"></textarea>
     </div>
-    <div id="cert-output" class="output-box empty">Le résultat apparaîtra ici</div>
+    <div class="card card-lg">
+      <p class="card-title">Résultat encodé</p>
+      <div class="row" style="margin-bottom:8px;">
+        <span class="badge" id="cert-count">— car.</span>
+        <button id="cert-copy-btn" onclick="certCopy()">Copier ↗</button>
+      </div>
+      <div id="cert-output" class="output-box empty" style="min-height:200px;">Le résultat apparaîtra ici</div>
+    </div>
   </div>
 </div>`;
 

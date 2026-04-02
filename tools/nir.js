@@ -8,7 +8,8 @@ export function mount(container) {
     <p class="page-desc">Construit, décode et valide un numéro de sécurité sociale français (NIR) à 15 chiffres.</p>
   </div>
 
-  <div class="card">
+  <div class="cards-row">
+  <div class="card card-lg">
     <p class="card-title">Construire depuis les données personnelles</p>
     <div class="gender-row">
       <button class="gbtn active" id="gbtn-1" onclick="nirSetGender('1')">Homme</button>
@@ -107,9 +108,7 @@ export function mount(container) {
     <button class="gen-btn" id="gen-btn" onclick="nirGenerate()">Calculer la clé et remplir le NIR ↓</button>
   </div>
 
-  <div class="separator"><span>ou saisir directement</span></div>
-
-  <div class="card">
+  <div class="card card-md">
     <p class="card-title">NIR complet (15 chiffres)</p>
     <input class="nir-input" type="text" id="nir" maxlength="15"
       placeholder="1 85 05 44 056 125 46" oninput="nirOnInput(this)" autocomplete="off" spellcheck="false">
@@ -126,6 +125,7 @@ export function mount(container) {
       </div>
     </div>
   </div>
+  </div><!-- end cards-row -->
   <p class="note">Aucune donnée n'est transmise. Tout est calculé localement dans votre navigateur.</p>
 </div>`;
 
