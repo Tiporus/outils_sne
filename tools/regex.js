@@ -6,7 +6,7 @@ export function mount(container) {
     <h1>Testeur de Regex</h1>
     <p class="page-desc">Teste, explique et décompose tes expressions régulières. Support Java, JavaScript et mode PCRE.</p>
   </div>
-<div class="tool-wrap">
+<div class="tool-wrap cols-3">
   <!-- Expression + flags -->
   <div class="card">
     <p class="card-title">Expression régulière</p>
