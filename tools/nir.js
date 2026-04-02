@@ -2,11 +2,11 @@ export const meta = { id: 'nir', label: 'Validateur NIR' };
 
 export function mount(container) {
   container.innerHTML = `
-<div class="tool-wrap">
-  <div class="page-header">
+<div class="page-header">
     <h1>Validateur NIR</h1>
     <p class="page-desc">Construit, décode et valide un numéro de sécurité sociale français (NIR) à 15 chiffres.</p>
   </div>
+<div class="tool-wrap">
   <div class="card">
     <p class="card-title">Construire depuis les données personnelles</p>
     <div class="gender-row">

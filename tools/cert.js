@@ -2,11 +2,11 @@ export const meta = { id: 'cert', label: 'Certificat Encoder' };
 
 export function mount(container) {
   container.innerHTML = `
-<div class="tool-wrap">
-  <div class="page-header">
+<div class="page-header">
     <h1>Certificat Encoder</h1>
     <p class="page-desc">Encode un certificat PEM en remplaçant les sauts de ligne par <code>%0a</code> et les espaces par <code>%20</code>.</p>
   </div>
+<div class="tool-wrap">
     <div class="card">
       <p class="card-title">Certificat (entrée brute)</p>
       <label>Colle ton certificat PEM ici</label>

@@ -2,11 +2,11 @@ export const meta = { id: 'base64', label: 'Base64' };
 
 export function mount(container) {
   container.innerHTML = `
-<div class="tool-wrap">
-  <div class="page-header">
+<div class="page-header">
     <h1>Base64 Encoder / Decoder</h1>
     <p class="page-desc">Encode ou décode du texte (ou un fichier) en <code>Base64</code>. Utile pour les tokens JWT, les certificats, les payloads API, etc.</p>
   </div>
+<div class="tool-wrap">
     <!-- Panneau gauche : mode + entrée -->
     <div class="card" style="display:flex;flex-direction:column;gap:10px;">
       <p class="card-title">Entrée</p>

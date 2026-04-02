@@ -2,11 +2,11 @@ export const meta = { id: 'regex', label: 'Regex' };
 
 export function mount(container) {
   container.innerHTML = `
-<div class="tool-wrap">
-  <div class="page-header">
+<div class="page-header">
     <h1>Testeur de Regex</h1>
     <p class="page-desc">Teste, explique et décompose tes expressions régulières. Support Java, JavaScript et mode PCRE.</p>
   </div>
+<div class="tool-wrap">
   <!-- Expression + flags -->
   <div class="card">
     <p class="card-title">Expression régulière</p>

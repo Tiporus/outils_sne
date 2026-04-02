@@ -72,11 +72,11 @@ export function mount(container) {
 
   // ── HTML ──
   container.innerHTML = `
-<div class="tool-wrap">
-  <div class="page-header">
+<div class="page-header">
     <h1>Générateur CRON</h1>
     <p class="page-desc">Construis, décode et valide des expressions CRON avec support Spring <code>@Scheduled</code> (6 champs) et Unix/Quartz (5 champs).</p>
   </div>
+<div class="tool-wrap">
 
   <!-- Mode -->
   <div class="cron-mode-row">
