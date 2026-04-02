@@ -105,8 +105,11 @@ export function mount(container) {
   <div class="card">
     <p class="card-title">Constructeur visuel</p>
     <div class="cron-builder" id="cron-builder"></div>
-    <div class="sep"></div>
-    <p class="card-title" style="margin-bottom:.6rem;">Expressions fréquentes</p>
+  </div>
+
+  <!-- Expressions fréquentes -->
+  <div class="card">
+    <p class="card-title">Expressions fréquentes</p>
     <div class="cron-shortcuts" id="cron-shortcuts"></div>
   </div>
 
