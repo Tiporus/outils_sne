@@ -140,6 +140,15 @@ export function mount(container) {
       .rx-flags-section { margin-bottom:12px; }
       .rx-flags-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
       @media(max-width:580px){ .rx-flags-grid { grid-template-columns:1fr; } }
+      @media(max-width:640px){
+        .rx-expr-row { gap:4px; }
+        .rx-pattern-input { font-size:14px; min-width:0; }
+        .rx-flags-section { margin-bottom:8px; }
+        .rx-lib-grid { grid-template-columns: 1fr 1fr; }
+      }
+      @media(max-width:400px){
+        .rx-lib-grid { grid-template-columns: 1fr; }
+      }
       .rx-flag-card {
         display:flex; flex-direction:column; gap:5px;
         padding:10px 12px; border-radius:9px;

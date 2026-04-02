@@ -29,6 +29,14 @@ export function mount(container) {
 
       .cron-builder { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
       @media(max-width:600px){ .cron-builder { grid-template-columns:1fr; } }
+      @media(max-width:640px){
+        .cron-mode-row { flex-direction:column; }
+        .cron-shortcuts { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .cron-shortcuts::-webkit-scrollbar { display:none; }
+        .cron-shortcut { flex-shrink: 0; }
+        .cron-next-item { flex-wrap: wrap; gap: 4px; }
+        .cron-next-item .ni-rel { margin-left: auto; }
+      }
 
       .cron-section { background:var(--surface2); border-radius:10px; padding:12px; border:0.5px solid var(--border); }
       .cron-section-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
