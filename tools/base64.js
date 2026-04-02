@@ -7,10 +7,8 @@ export function mount(container) {
     <h1>Base64 Encoder / Decoder</h1>
     <p class="page-desc">Encode ou décode du texte (ou un fichier) en <code>Base64</code>. Utile pour les tokens JWT, les certificats, les payloads API, etc.</p>
   </div>
-
-  <div class="cards-row">
     <!-- Panneau gauche : mode + entrée -->
-    <div class="card card-lg" style="display:flex;flex-direction:column;gap:10px;">
+    <div class="card" style="display:flex;flex-direction:column;gap:10px;">
       <p class="card-title">Entrée</p>
       <div class="mode-row" style="margin-bottom:0">
         <button class="mbtn active" id="b64-btn-encode">⬆ Encoder → Base64</button>
@@ -28,7 +26,7 @@ export function mount(container) {
     </div>
 
     <!-- Panneau droit : résultat + stats -->
-    <div class="card card-lg" style="display:flex;flex-direction:column;gap:10px;">
+    <div class="card" style="display:flex;flex-direction:column;gap:10px;">
       <p class="card-title">Résultat</p>
       <div class="output-header">
         <label style="margin:0" id="b64-output-label">Résultat Base64</label>

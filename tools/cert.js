@@ -7,13 +7,12 @@ export function mount(container) {
     <h1>Certificat Encoder</h1>
     <p class="page-desc">Encode un certificat PEM en remplaçant les sauts de ligne par <code>%0a</code> et les espaces par <code>%20</code>.</p>
   </div>
-  <div class="cards-row">
-    <div class="card card-lg">
+    <div class="card">
       <p class="card-title">Certificat (entrée brute)</p>
       <label>Colle ton certificat PEM ici</label>
       <textarea id="cert-input" style="min-height:200px" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIBxTCCAW...&#10;-----END CERTIFICATE-----" oninput="certUpdate()"></textarea>
     </div>
-    <div class="card card-lg">
+    <div class="card">
       <p class="card-title">Résultat encodé</p>
       <div class="row" style="margin-bottom:8px;">
         <span class="badge" id="cert-count">— car.</span>
