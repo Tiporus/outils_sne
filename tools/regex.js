@@ -65,12 +65,12 @@ export function mount(container) {
       <span class="rx-match-count" id="rx-match-count"></span>
     </div>
 
-    <!-- Explication -->
-    <div id="rx-explain-wrap" style="display:none;">
-      <div class="sep"></div>
-      <p class="card-title" style="margin-bottom:.5rem;">Explication token par token</p>
-      <div class="rx-explain" id="rx-explain"></div>
-    </div>
+  </div>
+
+  <!-- Explication token par token -->
+  <div class="card" id="rx-explain-wrap" style="display:none;">
+    <p class="card-title">Explication token par token</p>
+    <div class="rx-explain" id="rx-explain"></div>
   </div>
 
   <!-- Texte de test -->
@@ -94,9 +94,9 @@ export function mount(container) {
     <p class="card-title">Correspondances</p>
     <div id="rx-matches-list"></div>
   </div>
-  <!-- Bibliothèque de patterns -->
+  <!-- Expressions fréquentes -->
   <div class="card">
-    <p class="card-title">Bibliothèque de patterns</p>
+    <p class="card-title">Expressions fréquentes</p>
     <div class="rx-lib-grid" id="rx-lib-grid"></div>
   </div>
 
