@@ -167,7 +167,13 @@
     #tool-container {
       flex: 1; overflow-y: auto; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
+      padding: 0 10px;
     }
+    @media (min-width: 640px) {
+      #tool-container { padding: 0 30px; }
+    }
+    /* Formatter plein écran : pas de padding */
+    #tool-container:has(.fmt-tool) { padding: 0; }
 
     /* ── Shared tool styles ── */
     .page-header {
@@ -179,6 +185,9 @@
     .card { break-inside: avoid; margin-bottom: 1rem; display: block; }
 
     @media (min-width: 860px)  { .tool-wrap { columns: 2; } }
+    /* CRON gère son propre grid — désactiver columns sur son tool-wrap */
+    .cron-grid ~ * { break-inside: avoid; }
+    #tool-container:has(.cron-grid) .tool-wrap { columns: unset; }
     @media (min-width: 1100px) { .tool-wrap.cols-3 { columns: 3; } }
     .page-header { margin-bottom: 1.5rem; }
     h1 { font-size: 18px; font-weight: 500; margin: 0 0 .35rem; color: var(--text); }

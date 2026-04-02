@@ -27,6 +27,17 @@ export function mount(container) {
       .cron-status { display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px 14px; border-radius:8px; border:0.5px solid var(--border); font-size:13px; color:var(--text); }
       .cron-status .status-dot { flex-shrink:0; width:10px; height:10px; border-radius:50%; background:var(--muted2); }
 
+      /* Layout grid 2 colonnes pour le tool-wrap du CRON */
+      .cron-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        align-items: start;
+      }
+      .cron-col { display: flex; flex-direction: column; gap: 1rem; }
+      @media (max-width: 860px) {
+        .cron-grid { grid-template-columns: 1fr; }
+      }
       .cron-builder { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
       @media(max-width:600px){ .cron-builder { grid-template-columns:1fr; } }
       @media(max-width:640px){
@@ -78,6 +89,9 @@ export function mount(container) {
   </div>
 <div class="tool-wrap">
 
+  <div class="cron-grid">
+    <!-- Colonne 1 : Mode, Explication, Expression, Prochaines exécutions -->
+    <div class="cron-col">
   <!-- Mode -->
   <div class="cron-mode-row">
     <button class="cron-mbtn" id="cron-mbtn-spring">Spring @Scheduled (6 champs)</button>
@@ -101,25 +115,33 @@ export function mount(container) {
     </div>
   </div>
 
-  <!-- Constructeur visuel -->
-  <div class="card">
-    <p class="card-title">Constructeur visuel</p>
-    <div class="cron-builder" id="cron-builder"></div>
-    <div class="sep"></div>
-    <p class="card-title" style="margin-bottom:.6rem;">Expressions fréquentes</p>
-    <div class="cron-shortcuts" id="cron-shortcuts"></div>
-  </div>
-
   <!-- Prochaines exécutions -->
   <div class="card" id="cron-next-card" style="display:none;">
     <p class="card-title">Prochaines exécutions</p>
     <div class="cron-next-list" id="cron-next-list"></div>
+  </div>
+    </div>
+
+    <!-- Colonne 2 : Constructeur, Expressions fréquentes, Code Spring -->
+    <div class="cron-col">
+  <!-- Constructeur visuel -->
+  <div class="card">
+    <p class="card-title">Constructeur visuel</p>
+    <div class="cron-builder" id="cron-builder"></div>
+  </div>
+
+  <!-- Expressions fréquentes -->
+  <div class="card">
+    <p class="card-title">Expressions fréquentes</p>
+    <div class="cron-shortcuts" id="cron-shortcuts"></div>
   </div>
 
   <!-- Code Spring -->
   <div class="card" id="cron-spring-card" style="display:none;">
     <p class="card-title">Code Spring Boot</p>
     <div class="cron-code-block" id="cron-spring-code"></div>
+  </div>
+    </div>
   </div>
   <p class="note">Tout est calculé localement dans votre navigateur.</p>
 </div>`;
