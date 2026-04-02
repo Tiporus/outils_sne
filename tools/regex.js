@@ -27,6 +27,7 @@ export function mount(container) {
           <div class="rx-flag-header">
             <span class="rx-flag-letter">g</span>
             <span class="rx-flag-name">global</span>
+            <span class="rx-flag-hint">Toutes les correspondances</span>
             <span class="rx-flag-badge" id="rx-badge-g">actif</span>
           </div>
         </button>
@@ -34,6 +35,7 @@ export function mount(container) {
           <div class="rx-flag-header">
             <span class="rx-flag-letter">i</span>
             <span class="rx-flag-name">insensible à la casse</span>
+            <span class="rx-flag-hint">Ignore majuscules / minuscules</span>
             <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
           </div>
         </button>
@@ -41,6 +43,7 @@ export function mount(container) {
           <div class="rx-flag-header">
             <span class="rx-flag-letter">m</span>
             <span class="rx-flag-name">multiline</span>
+            <span class="rx-flag-hint">^ et $ sur chaque ligne</span>
             <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
           </div>
         </button>
@@ -48,6 +51,7 @@ export function mount(container) {
           <div class="rx-flag-header">
             <span class="rx-flag-letter">s</span>
             <span class="rx-flag-name">dotAll</span>
+            <span class="rx-flag-hint">. inclut les sauts de ligne</span>
             <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
           </div>
         </button>
@@ -147,7 +151,8 @@ export function mount(container) {
       .rx-flag-card:hover { border-color:var(--accent); background:var(--input-bg); }
       .rx-flag-card.active { border-color:#85B7EB; background:#E6F1FB; }
       .dark .rx-flag-card.active { border-color:#388bfd; background:#1c2d3f; }
-      .rx-flag-header { display:flex; align-items:center; gap:7px; }
+      .rx-flag-header { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+      .rx-flag-hint { font-size:11px; color:var(--muted); flex:1; text-align:right; }
       .rx-flag-letter { font-family:monospace; font-size:17px; font-weight:700; color:var(--muted); width:20px; }
       .rx-flag-card.active .rx-flag-letter { color:#0C447C; }
       .dark .rx-flag-card.active .rx-flag-letter { color:#58a6ff; }
