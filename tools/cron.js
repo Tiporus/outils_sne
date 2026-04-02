@@ -88,7 +88,8 @@ export function mount(container) {
   <div class="cron-mode-explain" id="cron-mode-explain"></div>
 
   <!-- Expression -->
-  <div class="card">
+  <div class="cards-row">
+  <div class="card card-md">
     <p class="card-title">Expression CRON</p>
     <div class="cron-input-row">
       <input type="text" id="cron-expr" class="cron-expr-input" spellcheck="false" autocomplete="off" />
@@ -102,7 +103,7 @@ export function mount(container) {
   </div>
 
   <!-- Constructeur visuel -->
-  <div class="card">
+  <div class="card card-xl">
     <p class="card-title">Constructeur visuel</p>
     <div class="cron-builder" id="cron-builder"></div>
     <div class="sep"></div>
@@ -111,17 +112,20 @@ export function mount(container) {
   </div>
 
   <!-- Prochaines exécutions -->
-  <div class="card" id="cron-next-card" style="display:none;">
+  </div><!-- end cards-row 1 -->
+  <div class="cards-row">
+  <div class="card card-md" id="cron-next-card" style="display:none;">
     <p class="card-title">Prochaines exécutions</p>
     <div class="cron-next-list" id="cron-next-list"></div>
   </div>
 
   <!-- Code Spring -->
-  <div class="card" id="cron-spring-card" style="display:none;">
+  <div class="card card-lg" id="cron-spring-card" style="display:none;">
     <p class="card-title">Code Spring Boot</p>
     <div class="cron-code-block" id="cron-spring-code"></div>
   </div>
 
+  </div><!-- end cards-row 2 -->
   <p class="note">Tout est calculé localement dans votre navigateur.</p>
 </div>`;
 
