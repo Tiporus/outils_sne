@@ -7,168 +7,372 @@ export function mount(container) {
     const s = document.createElement('style');
     s.id = 'cron-style';
     s.textContent = `
-      .cron-mode-row { display:flex; gap:8px; margin-bottom:1rem; }
-      .cron-mbtn { flex:1; padding:9px; border-radius:8px; border:0.5px solid var(--border); background:var(--surface); color:var(--muted); cursor:pointer; font-size:13px; font-family:inherit; font-weight:500; transition:background .15s; }
-      .cron-mbtn.active { background:#E6F1FB; color:#0C447C; border-color:#85B7EB; }
+      /* Désactive le scroll du tool-container pour CRON */
+      #tool-container:has(.cron-layout) {
+        overflow: hidden;
+        padding: 0;
+      }
 
-      .cron-mode-explain { font-size:12px; color:var(--muted); background:var(--surface2); border-radius:8px; padding:10px 14px; margin-bottom:1rem; border-left:3px solid var(--accent); line-height:1.6; }
-      .cron-mode-explain code { font-family:monospace; font-size:11px; background:var(--input-bg); padding:1px 5px; border-radius:3px; }
+      /* ─── Layout principal ─── */
+      .cron-layout {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 10px 20px 10px;
+        gap: 10px;
+        box-sizing: border-box;
+      }
 
-      .cron-input-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
-      .cron-expr-input { flex:1; min-width:200px; font-family:'JetBrains Mono','Fira Mono',monospace; font-size:18px; letter-spacing:.08em; padding:10px 14px; border-radius:8px; border:0.5px solid var(--border); background:var(--input-bg); color:var(--text); outline:none; transition:border-color .15s; }
-      .cron-expr-input:focus { border-color:var(--accent); }
-      .cron-expr-input.err { border-color:#D85A30 !important; }
+      /* ─── En-tête : mode + expression ─── */
+      .cron-header {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        flex-shrink: 0;
+      }
 
-      .cron-field-strip { display:flex; gap:4px; margin-bottom:8px; }
-      .cron-field-box { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
-      .cron-field-lbl { font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-      .cron-field-val { width:100%; text-align:center; font-size:13px; font-family:monospace; font-weight:600; padding:4px 2px; border-radius:5px; background:var(--surface2); color:var(--accent); border:0.5px solid var(--border); }
+      .cron-mode-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex-shrink: 0;
+      }
 
-      .cron-status { display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px 14px; border-radius:8px; border:0.5px solid var(--border); font-size:13px; color:var(--text); }
-      .cron-status .status-dot { flex-shrink:0; width:10px; height:10px; border-radius:50%; background:var(--muted2); }
+      .cron-mbtn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: var(--surface);
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 12px;
+        font-family: inherit;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: background .15s;
+        text-align: left;
+        line-height: 1.5;
+        flex: 1;
+      }
+      .cron-mbtn.active { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; }
 
-      /* Layout grid 2 colonnes pour le tool-wrap du CRON */
-      .cron-grid {
+      .cron-expr-card {
+        flex: 1;
+        background: var(--surface);
+        border: 0.5px solid var(--border-light);
+        border-radius: 12px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .cron-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .cron-expr-input {
+        flex: 1;
+        font-family: 'JetBrains Mono','Fira Mono',monospace;
+        font-size: 16px;
+        letter-spacing: .08em;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: var(--input-bg);
+        color: var(--text);
+        outline: none;
+        transition: border-color .15s;
+      }
+      .cron-expr-input:focus { border-color: var(--accent); }
+      .cron-expr-input.err { border-color: #D85A30 !important; }
+
+      .cron-field-strip { display: flex; gap: 4px; }
+      .cron-field-box { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+      .cron-field-lbl { font-size: 8px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+      .cron-field-val { width: 100%; text-align: center; font-size: 12px; font-family: monospace; font-weight: 600; padding: 3px 2px; border-radius: 5px; background: var(--surface2); color: var(--accent); border: 0.5px solid var(--border); }
+
+      .cron-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+      .cron-status .status-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--muted2); }
+
+      /* ─── Corps : Constructeur + Sidebar ─── */
+      .cron-body {
+        flex: 1;
+        display: flex;
+        gap: 10px;
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      /* Colonne gauche : constructeur */
+      .cron-builder-col {
+        flex: 3;
+        overflow: hidden;
+        min-width: 0;
+        align-self: start;
+      }
+
+      .cron-builder {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        align-items: start;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        align-content: start;
       }
-      .cron-col { display: flex; flex-direction: column; gap: 1rem; }
+
+      /* Unix : 5 champs — le 5e s'étend sur 2 colonnes */
+      .cron-builder .cron-section:last-child:nth-child(5) {
+        grid-column: span 2;
+      }
+
+      .cron-section {
+        background: var(--surface2);
+        border-radius: 10px;
+        padding: 10px;
+        border: 0.5px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .cron-section-title {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 6px;
+        flex-shrink: 0;
+      }
+      .cron-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        overflow-y: auto;
+        flex: 1;
+        align-content: flex-start;
+        scrollbar-width: thin;
+      }
+      .cron-preset {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        border: 0.5px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        transition: background .12s;
+        font-family: inherit;
+        flex-shrink: 0;
+        height: fit-content;
+      }
+      .cron-preset:hover { border-color: var(--accent); color: var(--accent); }
+      .cron-preset.active { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; font-weight: 600; }
+
+      .cron-custom-input {
+        width: 100%;
+        padding: 5px 8px;
+        border-radius: 7px;
+        border: 0.5px solid var(--border);
+        background: var(--input-bg);
+        color: var(--text);
+        font-size: 12px;
+        font-family: monospace;
+        outline: none;
+        flex-shrink: 0;
+        margin-top: 6px;
+      }
+      .cron-custom-input:focus { border-color: var(--accent); }
+
+      /* Colonne droite : sidebar */
+      .cron-sidebar {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .cron-panel {
+        background: var(--surface);
+        border: 0.5px solid var(--border-light);
+        border-radius: 12px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+        flex-shrink: 0;
+      }
+
+      #cron-next-panel { flex: none; }
+
+      .cron-panel-title {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--muted2);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+      }
+
+      .cron-next-list {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        overflow-y: auto;
+        flex: 1;
+        scrollbar-width: thin;
+      }
+      .cron-next-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: var(--surface2);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .cron-next-item .ni-idx { font-size: 10px; color: var(--muted2); width: 16px; text-align: right; flex-shrink: 0; }
+      .cron-next-item .ni-date { font-weight: 500; color: var(--text); flex: 1; }
+      .cron-next-item .ni-rel { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+      .cron-shortcuts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+      }
+      .cron-shortcut {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        cursor: pointer;
+        transition: background .12s;
+        font-family: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        text-align: left;
+      }
+      .cron-shortcut:hover { background: var(--surface); border-color: var(--accent); }
+      .cron-shortcut .sc-label { font-weight: 600; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+      .cron-shortcut .sc-expr { font-family: monospace; font-size: 11px; color: var(--accent); }
+
+      .cron-code-block {
+        background: var(--input-bg);
+        border: 0.5px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        font-family: 'JetBrains Mono','Fira Mono',monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        color: var(--text);
+        white-space: pre;
+        overflow-x: auto;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+      }
+      .cron-code-block .ck { color: var(--c-bool); }
+      .cron-code-block .cs { color: var(--c-str); }
+      .cron-code-block .cc { color: var(--c-comment); }
+
+      /* ─── Responsive mobile ─── */
       @media (max-width: 860px) {
-        .cron-grid { grid-template-columns: 1fr; }
+        #tool-container:has(.cron-layout) { overflow-y: auto; }
+        .cron-layout { height: auto; }
+        .cron-header { flex-direction: column; }
+        .cron-mode-tabs { flex-direction: row; }
+        .cron-body { flex-direction: column; overflow: visible; }
+        .cron-builder { grid-template-columns: repeat(2, 1fr); height: auto; }
+        .cron-builder .cron-section:last-child:nth-child(5) { grid-column: span 1; }
+        .cron-section { min-height: 120px; }
+        .cron-sidebar { overflow: visible; }
+        .cron-panel { flex-shrink: 0; }
+        #cron-next-panel { flex: none; }
       }
-      .cron-builder { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-      @media(max-width:600px){ .cron-builder { grid-template-columns:1fr; } }
-      @media(max-width:640px){
-        .cron-mode-row { flex-direction:column; }
-        .cron-shortcuts { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-        .cron-shortcuts::-webkit-scrollbar { display:none; }
-        .cron-shortcut { flex-shrink: 0; }
-        .cron-next-item { flex-wrap: wrap; gap: 4px; }
-        .cron-next-item .ni-rel { margin-left: auto; }
+      @media (max-width: 640px) {
+        .cron-layout { padding: 8px 10px; }
+        .cron-builder { grid-template-columns: 1fr; }
       }
-
-      .cron-section { background:var(--surface2); border-radius:10px; padding:12px; border:0.5px solid var(--border); }
-      .cron-section-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-      .cron-section-hint { font-size:11px; color:var(--muted2); margin-bottom:8px; line-height:1.4; }
-      .cron-presets { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
-      .cron-preset { font-size:11px; padding:3px 10px; border-radius:6px; border:0.5px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; transition:background .12s; font-family:inherit; }
-      .cron-preset:hover { border-color:var(--accent); color:var(--accent); }
-      .cron-preset.active { background:#E6F1FB; color:#0C447C; border-color:#85B7EB; font-weight:600; }
-      .cron-custom-row { display:flex; align-items:center; gap:8px; }
-      .cron-custom-input { flex:1; padding:6px 10px; border-radius:7px; border:0.5px solid var(--border); background:var(--input-bg); color:var(--text); font-size:13px; font-family:monospace; outline:none; }
-      .cron-custom-input:focus { border-color:var(--accent); }
-      .cron-custom-hint { font-size:10px; color:var(--muted2); white-space:nowrap; }
-
-      .cron-shortcuts { display:flex; flex-wrap:wrap; gap:6px; }
-      .cron-shortcut { font-size:12px; padding:6px 12px; border-radius:8px; border:0.5px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; transition:background .12s; font-family:inherit; display:flex; flex-direction:column; gap:2px; text-align:left; }
-      .cron-shortcut:hover { background:var(--surface2); border-color:var(--accent); }
-      .cron-shortcut .sc-label { font-weight:600; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
-      .cron-shortcut .sc-expr  { font-family:monospace; font-size:12px; color:var(--accent); }
-
-      .cron-next-list { display:flex; flex-direction:column; gap:4px; }
-      .cron-next-item { display:flex; align-items:center; gap:10px; padding:7px 12px; border-radius:7px; background:var(--surface2); font-size:13px; }
-      .cron-next-item .ni-idx  { font-size:11px; color:var(--muted2); width:20px; text-align:right; flex-shrink:0; }
-      .cron-next-item .ni-date { font-weight:500; color:var(--text); flex:1; }
-      .cron-next-item .ni-rel  { font-size:11px; color:var(--muted); white-space:nowrap; }
-
-      .cron-code-block { background:var(--input-bg); border:0.5px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono','Fira Mono',monospace; font-size:12px; line-height:1.7; color:var(--text); white-space:pre; overflow-x:auto; }
-      .cron-code-block .ck { color:var(--c-bool); }
-      .cron-code-block .cs { color:var(--c-str); }
-      .cron-code-block .cc { color:var(--c-comment); }
     `;
     document.head.appendChild(s);
   }
 
   // ── HTML ──
   container.innerHTML = `
-<div class="page-header">
-    <h1>Générateur CRON</h1>
-    <p class="page-desc">Construis, décode et valide des expressions CRON avec support Spring <code>@Scheduled</code> (6 champs) et Unix/Quartz (5 champs).</p>
-  </div>
-<div class="tool-wrap">
+<div class="cron-layout">
 
-  <div class="cron-grid">
-    <!-- Colonne 1 : Mode, Explication, Expression, Prochaines exécutions -->
-    <div class="cron-col">
-  <!-- Mode -->
-  <div class="cron-mode-row">
-    <button class="cron-mbtn" id="cron-mbtn-spring">Spring @Scheduled (6 champs)</button>
-    <button class="cron-mbtn" id="cron-mbtn-unix">Unix / Quartz (5 champs)</button>
-  </div>
-
-  <!-- Explication du mode -->
-  <div class="cron-mode-explain" id="cron-mode-explain"></div>
-
-  <!-- Expression -->
-  <div class="card">
-    <p class="card-title">Expression CRON</p>
-    <div class="cron-input-row">
-      <input type="text" id="cron-expr" class="cron-expr-input" spellcheck="false" autocomplete="off" />
-      <button id="cron-copy-btn">Copier ↗</button>
+  <!-- En-tête : sélecteur de mode + expression -->
+  <div class="cron-header">
+    <div class="cron-mode-tabs">
+      <button class="cron-mbtn" id="cron-mbtn-spring">Spring @Scheduled<br><small style="font-weight:400;opacity:.65">6 champs</small></button>
+      <button class="cron-mbtn" id="cron-mbtn-unix">Unix / Quartz<br><small style="font-weight:400;opacity:.65">5 champs</small></button>
     </div>
-    <div class="cron-field-strip" id="cron-field-strip"></div>
-    <div class="cron-status">
-      <div class="status-dot" id="cron-dot"></div>
-      <span id="cron-desc">–</span>
+    <div class="cron-expr-card">
+      <div class="cron-input-row">
+        <input type="text" id="cron-expr" class="cron-expr-input" spellcheck="false" autocomplete="off" />
+        <button id="cron-copy-btn">Copier ↗</button>
+      </div>
+      <div class="cron-field-strip" id="cron-field-strip"></div>
+      <div class="cron-status">
+        <div class="status-dot" id="cron-dot"></div>
+        <span id="cron-desc">–</span>
+      </div>
     </div>
   </div>
 
-  <!-- Prochaines exécutions -->
-  <div class="card" id="cron-next-card" style="display:none;">
-    <p class="card-title">Prochaines exécutions</p>
-    <div class="cron-next-list" id="cron-next-list"></div>
-  </div>
+  <!-- Corps : Constructeur visuel + Sidebar -->
+  <div class="cron-body">
+
+    <div class="cron-builder-col">
+      <div class="cron-builder" id="cron-builder"></div>
+      <div class="cron-panel" id="cron-shortcuts-panel" style="margin-top:8px;">
+        <div class="cron-panel-title">Expressions fréquentes</div>
+        <div class="cron-shortcuts" id="cron-shortcuts"></div>
+      </div>
     </div>
 
-    <!-- Colonne 2 : Constructeur, Expressions fréquentes, Code Spring -->
-    <div class="cron-col">
-  <!-- Constructeur visuel -->
-  <div class="card">
-    <p class="card-title">Constructeur visuel</p>
-    <div class="cron-builder" id="cron-builder"></div>
-  </div>
+    <div class="cron-sidebar">
+      <div class="cron-panel" id="cron-next-panel" style="display:none;">
+        <div class="cron-panel-title">Prochaines exécutions</div>
+        <div class="cron-next-list" id="cron-next-list"></div>
+      </div>
 
-  <!-- Expressions fréquentes -->
-  <div class="card">
-    <p class="card-title">Expressions fréquentes</p>
-    <div class="cron-shortcuts" id="cron-shortcuts"></div>
-  </div>
-
-  <!-- Code Spring -->
-  <div class="card" id="cron-spring-card" style="display:none;">
-    <p class="card-title">Code Spring Boot</p>
-    <div class="cron-code-block" id="cron-spring-code"></div>
-  </div>
+      <div class="cron-panel" id="cron-spring-panel" style="display:none;">
+        <div class="cron-panel-title">Code Spring Boot</div>
+        <div class="cron-code-block" id="cron-spring-code"></div>
+      </div>
     </div>
+
   </div>
-  <p class="note">Tout est calculé localement dans votre navigateur.</p>
 </div>`;
 
   // ══════════════════════════════════════════════
   // DONNÉES
   // ══════════════════════════════════════════════
 
-  const MODE_EXPLAIN = {
-    spring: `<b>Spring @Scheduled — 6 champs</b> : <code>secondes minutes heures jour-mois mois jour-semaine</code><br>
-      Utilisé dans Spring Boot avec l'annotation <code>@Scheduled(cron = "...")</code>. Le premier champ contrôle les secondes (0–59). Exemple : <code>0 30 9 * * 1-5</code> → chaque jour ouvré à 09h30 précise.`,
-    unix: `<b>Unix / Crontab — 5 champs</b> : <code>minutes heures jour-mois mois jour-semaine</code><br>
-      Format standard utilisé par <code>crontab</code>, Quartz, GitLab CI, etc. Pas de champ secondes — la précision minimale est la minute. Exemple : <code>30 9 * * 1-5</code> → chaque jour ouvré à 09h30.`,
-  };
-
   const FIELDS_SPRING = [
-    { id:'seconds', label:'Secondes', hint:'0–59  •  * = chaque seconde  •  */5 = toutes les 5s', range:[0,59],
+    { id:'seconds', label:'Secondes', hint:'0–59  •  */5 = toutes les 5s', range:[0,59],
       presets:[{l:'0',v:'0'},{l:'*/5',v:'*/5'},{l:'*/10',v:'*/10'},{l:'*/30',v:'*/30'},{l:'*',v:'*'}] },
-    { id:'minutes', label:'Minutes',  hint:'0–59  •  * = chaque minute  •  */15 = toutes les 15min', range:[0,59],
+    { id:'minutes', label:'Minutes',  hint:'0–59  •  */15 = toutes les 15min', range:[0,59],
       presets:[{l:'0',v:'0'},{l:'*/5',v:'*/5'},{l:'*/10',v:'*/10'},{l:'*/15',v:'*/15'},{l:'*/30',v:'*/30'},{l:'*',v:'*'}] },
-    { id:'hours',   label:'Heures',   hint:'0–23  •  * = toutes les heures  •  8-18 = entre 8h et 18h', range:[0,23],
+    { id:'hours',   label:'Heures',   hint:'0–23  •  8-18 = entre 8h et 18h', range:[0,23],
       presets:[{l:'0',v:'0'},{l:'6',v:'6'},{l:'8',v:'8'},{l:'12',v:'12'},{l:'18',v:'18'},{l:'*/2',v:'*/2'},{l:'*',v:'*'}] },
-    { id:'dom',     label:'Jour mois',hint:'1–31  •  * = tous les jours  •  L = dernier jour du mois', range:[1,31],
+    { id:'dom',     label:'Jour mois',hint:'1–31  •  L = dernier jour du mois', range:[1,31],
       presets:[{l:'*',v:'*'},{l:'1',v:'1'},{l:'15',v:'15'},{l:'L',v:'L'},{l:'1,15',v:'1,15'}] },
-    { id:'months',  label:'Mois',     hint:'1–12  •  * = tous les mois  •  1,7 = janvier et juillet', range:[1,12],
+    { id:'months',  label:'Mois',     hint:'1–12  •  1,7 = jan et juil', range:[1,12],
       presets:[{l:'*',v:'*'},{l:'Jan',v:'1'},{l:'Fév',v:'2'},{l:'Mar',v:'3'},{l:'Avr',v:'4'},{l:'Mai',v:'5'},{l:'Jun',v:'6'},{l:'Jul',v:'7'},{l:'Aoû',v:'8'},{l:'Sep',v:'9'},{l:'Oct',v:'10'},{l:'Nov',v:'11'},{l:'Déc',v:'12'}] },
-    { id:'dow',     label:'Jour sem.', hint:'0=dim, 1=lun … 6=sam  •  1-5 = lun au ven  •  * = tous', range:[0,7],
+    { id:'dow',     label:'Jour sem.', hint:'0=dim … 6=sam  •  1-5 = lun–ven', range:[0,7],
       presets:[{l:'*',v:'*'},{l:'Lun',v:'1'},{l:'Mar',v:'2'},{l:'Mer',v:'3'},{l:'Jeu',v:'4'},{l:'Ven',v:'5'},{l:'Sam',v:'6'},{l:'Dim',v:'0'},{l:'Lun–Ven',v:'1-5'},{l:'Week-end',v:'6,0'}] },
   ];
 
@@ -192,17 +396,15 @@ export function mount(container) {
   // STATE
   // ══════════════════════════════════════════════
 
-  let mode = 'spring'; // défaut Spring
+  let mode = 'spring';
 
   // ══════════════════════════════════════════════
   // INIT
   // ══════════════════════════════════════════════
 
-  // Boutons de mode
   document.getElementById('cron-mbtn-spring').addEventListener('click', () => setMode('spring'));
   document.getElementById('cron-mbtn-unix').addEventListener('click',   () => setMode('unix'));
 
-  // Copier
   document.getElementById('cron-copy-btn').addEventListener('click', () => {
     const expr = document.getElementById('cron-expr').value.trim();
     if (!expr) return;
@@ -213,10 +415,8 @@ export function mount(container) {
     });
   });
 
-  // Écouter la saisie directe dans l'expression
   document.getElementById('cron-expr').addEventListener('input', () => fromExpr());
 
-  // Lancer avec le mode par défaut
   setMode('spring');
 
   // ══════════════════════════════════════════════
@@ -227,9 +427,7 @@ export function mount(container) {
     mode = m;
     document.getElementById('cron-mbtn-spring').classList.toggle('active', m === 'spring');
     document.getElementById('cron-mbtn-unix').classList.toggle('active',   m === 'unix');
-    document.getElementById('cron-mode-explain').innerHTML = MODE_EXPLAIN[m];
 
-    // Adapter l'expression si besoin
     const current = document.getElementById('cron-expr').value.trim();
     const parts = current.split(/\s+/);
     if (m === 'spring' && parts.length === 5) {
@@ -259,18 +457,14 @@ export function mount(container) {
       </div>`
     ).join('');
 
-    // Builder sections
+    // Builder sections (sans hint pour gagner de la place)
     document.getElementById('cron-builder').innerHTML = fields.map(f => `
       <div class="cron-section">
         <div class="cron-section-title">${f.label}</div>
-        <div class="cron-section-hint">${f.hint}</div>
         <div class="cron-presets" id="presets-${f.id}">
           ${f.presets.map(p => `<button class="cron-preset" data-field="${f.id}" data-value="${p.v}">${p.l}</button>`).join('')}
         </div>
-        <div class="cron-custom-row">
-          <input type="text" class="cron-custom-input" id="custom-${f.id}" placeholder="${f.presets[0].v}">
-          <span class="cron-custom-hint">${f.hint.split('•')[0].trim()}</span>
-        </div>
+        <input type="text" class="cron-custom-input" id="custom-${f.id}" placeholder="${f.presets[0].v}" title="${f.hint}">
       </div>`
     ).join('');
 
@@ -363,7 +557,6 @@ export function mount(container) {
     const desc = document.getElementById('cron-desc');
     const inp  = document.getElementById('cron-expr');
 
-    // Sync strip
     fields.forEach((f, i) => {
       const el = document.getElementById(`fval-${f.id}`);
       if (el) el.textContent = parts[i] || '?';
@@ -373,8 +566,8 @@ export function mount(container) {
       dot.style.background = '#BA7517';
       desc.textContent = `Expression incomplète — ${parts.length} champ${parts.length > 1 ? 's' : ''} sur ${n} attendus`;
       inp.classList.add('err');
-      document.getElementById('cron-next-card').style.display = 'none';
-      document.getElementById('cron-spring-card').style.display = 'none';
+      document.getElementById('cron-next-panel').style.display = 'none';
+      document.getElementById('cron-spring-panel').style.display = 'none';
       return;
     }
 
@@ -387,7 +580,7 @@ export function mount(container) {
     // Prochaines exécutions
     const nexts = nextRuns(parts, 8);
     if (nexts.length) {
-      document.getElementById('cron-next-card').style.display = '';
+      document.getElementById('cron-next-panel').style.display = '';
       document.getElementById('cron-next-list').innerHTML = nexts.map((d, i) =>
         `<div class="cron-next-item">
           <span class="ni-idx">${i + 1}</span>
@@ -396,18 +589,17 @@ export function mount(container) {
         </div>`
       ).join('');
     } else {
-      document.getElementById('cron-next-card').style.display = 'none';
+      document.getElementById('cron-next-panel').style.display = 'none';
     }
 
     // Code Spring
     const springExpr = mode === 'spring' ? expr.trim() : '0 ' + expr.trim();
-    document.getElementById('cron-spring-card').style.display = '';
+    document.getElementById('cron-spring-panel').style.display = '';
     document.getElementById('cron-spring-code').innerHTML =
-      `<span class="cc">// Spring Boot — ajouter @EnableScheduling sur la classe @Configuration</span>\n\n` +
+      `<span class="cc">// Spring Boot — @EnableScheduling requis</span>\n\n` +
       `<span class="ck">@Scheduled</span>(<span class="cs">cron = "${springExpr}"</span>)\n` +
       `<span class="ck">public void</span> maMethodePlanifiee() {\n` +
       `    <span class="cc">// ${description}</span>\n` +
-      `    <span class="cc">// TODO: implémenter la logique métier</span>\n` +
       `}`;
   }
 
@@ -424,18 +616,15 @@ export function mount(container) {
     const MONTH_FR = ['','janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
     const DOW_FR   = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 
-    // Secondes
     if (mode === 'spring') {
       if (sec === '*') return 'Chaque seconde';
       if (sec.startsWith('*/')) chunks.push(`toutes les ${sec.slice(2)} secondes`);
     }
 
-    // Minutes
     if (min === '*') { if (!chunks.length) chunks.push('chaque minute'); }
     else if (min.startsWith('*/')) chunks.push(`toutes les ${min.slice(2)} minutes`);
     else if (min !== '0') chunks.push(`à la minute ${min}`);
 
-    // Heures
     if (hour === '*') { /* silencieux */ }
     else if (hour.startsWith('*/')) chunks.push(`toutes les ${hour.slice(2)} heures`);
     else if (hour.includes('-')) { const [a,b]=hour.split('-'); chunks.push(`entre ${a}h et ${b}h`); }
@@ -445,20 +634,17 @@ export function mount(container) {
       chunks.push(`à ${hour.padStart(2,'0')}h${m}${s}`);
     }
 
-    // Jour du mois
     if (dom !== '*' && dom !== '?') {
       if (dom === 'L') chunks.push('le dernier jour du mois');
       else if (dom.includes('/')) { const [,step]=dom.split('/'); chunks.push(`tous les ${step} jours`); }
       else chunks.push(`le ${dom} du mois`);
     }
 
-    // Mois
     if (month !== '*' && month !== '?') {
       const ms = month.split(',').map(m => { const n=parseInt(m); return isNaN(n)?m:(MONTH_FR[n]||m); });
       chunks.push('en ' + ms.join(', '));
     }
 
-    // Jour de la semaine
     if (dow !== '*' && dow !== '?') {
       if (dow === '1-5') chunks.push('du lundi au vendredi');
       else if (dow === '6,0' || dow === '0,6') chunks.push('le week-end');
@@ -511,7 +697,7 @@ export function mount(container) {
     if (!expr || expr==='*'||expr==='?') return true;
     if (expr==='L') return val===new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
     for (const p of expr.split(',')) {
-      if (p.includes('/')) { const [base,step]=p.split('/'); const st=parseInt(base)==='*'?lo:parseInt(base); if(val>=st&&(val-st)%parseInt(step)===0)return true; }
+      if (p.includes('/')) { const [base,step]=p.split('/'); const st=base==='*'?lo:parseInt(base); if(val>=st&&(val-st)%parseInt(step)===0)return true; }
       else if (p.includes('-')) { const [a,b]=p.split('-'); if(val>=parseInt(a)&&val<=parseInt(b))return true; }
       else if (val===parseInt(p)) return true;
     }
