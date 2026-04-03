@@ -1,187 +1,232 @@
 export const meta = { id: 'regex', label: 'Regex' };
 
 export function mount(container) {
-  container.innerHTML = `
-<div class="page-header">
-    <h1>Testeur de Regex</h1>
-    <p class="page-desc">Teste, explique et décompose tes expressions régulières. Support Java, JavaScript et mode PCRE.</p>
-  </div>
-<div class="tool-wrap cols-3">
-  <!-- Expression + flags -->
-  <div class="card">
-    <p class="card-title">Expression régulière</p>
-    <div class="rx-expr-row">
-      <span class="rx-slash">/</span>
-      <input type="text" id="rx-pattern" class="rx-pattern-input"
-             placeholder="([A-Z][a-z]+)\\s+(\\d{4})"
-             spellcheck="false" autocomplete="off" />
-      <span class="rx-slash">/</span>
-      <button id="rx-copy-btn">Copier ↗</button>
-    </div>
-
-    <!-- Flags -->
-    <div class="rx-flags-section">
-      <p class="card-title" style="margin-bottom:8px;">Modificateurs (flags)</p>
-      <div class="rx-flags-grid">
-        <button class="rx-flag-card active" id="rx-flag-g" data-flag="g">
-          <div class="rx-flag-header">
-            <span class="rx-flag-letter">g</span>
-            <span class="rx-flag-name">global</span>
-            <span class="rx-flag-hint">Toutes les correspondances</span>
-            <span class="rx-flag-badge" id="rx-badge-g">actif</span>
-          </div>
-        </button>
-        <button class="rx-flag-card" id="rx-flag-i" data-flag="i">
-          <div class="rx-flag-header">
-            <span class="rx-flag-letter">i</span>
-            <span class="rx-flag-name">insensible à la casse</span>
-            <span class="rx-flag-hint">Ignore majuscules / minuscules</span>
-            <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
-          </div>
-        </button>
-        <button class="rx-flag-card" id="rx-flag-m" data-flag="m">
-          <div class="rx-flag-header">
-            <span class="rx-flag-letter">m</span>
-            <span class="rx-flag-name">multiline</span>
-            <span class="rx-flag-hint">^ et $ sur chaque ligne</span>
-            <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
-          </div>
-        </button>
-        <button class="rx-flag-card" id="rx-flag-s" data-flag="s">
-          <div class="rx-flag-header">
-            <span class="rx-flag-letter">s</span>
-            <span class="rx-flag-name">dotAll</span>
-            <span class="rx-flag-hint">. inclut les sauts de ligne</span>
-            <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Status -->
-    <div class="rx-status" id="rx-status">
-      <div class="status-dot" id="rx-dot"></div>
-      <span id="rx-status-msg">Saisissez une expression régulière</span>
-      <span class="rx-match-count" id="rx-match-count"></span>
-    </div>
-
-  </div>
-
-  <!-- Explication token par token -->
-  <div class="card" id="rx-explain-wrap" style="display:none;">
-    <p class="card-title">Explication token par token</p>
-    <div class="rx-explain" id="rx-explain"></div>
-  </div>
-
-  <!-- Texte de test -->
-  <div class="card">
-    <p class="card-title">Texte de test</p>
-    <div class="rx-test-area-wrap">
-      <div id="rx-highlight-layer" class="rx-highlight-layer" aria-hidden="true"></div>
-      <textarea id="rx-test-input" class="rx-test-textarea"
-                placeholder="Colle ou tape le texte à tester ici…"
-                spellcheck="false"></textarea>
-    </div>
-  </div>
-  <!-- Groupes capturants -->
-  <div class="card" id="rx-groups-card" style="display:none;">
-    <p class="card-title">Groupes capturants</p>
-    <div id="rx-groups-list"></div>
-  </div>
-
-  <!-- Correspondances détaillées -->
-  <div class="card" id="rx-matches-card" style="display:none;">
-    <p class="card-title">Correspondances</p>
-    <div id="rx-matches-list"></div>
-  </div>
-  <!-- Expressions fréquentes -->
-  <div class="card">
-    <p class="card-title">Expressions fréquentes</p>
-    <div class="rx-lib-grid" id="rx-lib-grid"></div>
-  </div>
-
-  <!-- Export Java / JS -->
-  <div class="card" id="rx-export-card" style="display:none;">
-    <p class="card-title">Code généré</p>
-    <div class="rx-lang-toggle">
-      <button class="rx-lang-btn active" id="rx-lang-java">Java</button>
-      <button class="rx-lang-btn" id="rx-lang-js">JavaScript</button>
-    </div>
-    <div class="rx-code-block" id="rx-code"></div>
-  </div>
-  <p class="note">Tout est calculé localement dans votre navigateur.</p>
-</div>`;
 
   // ── CSS injecté une seule fois ──
   if (!document.getElementById('rx-style')) {
     const s = document.createElement('style');
     s.id = 'rx-style';
     s.textContent = `
-      .rx-expr-row { display:flex; align-items:center; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
-      .rx-slash { font-size:22px; color:var(--muted); font-family:monospace; line-height:1; }
-      .rx-pattern-input {
-        flex:1; min-width:200px; font-family:'JetBrains Mono','Fira Mono',monospace;
-        font-size:16px; padding:9px 12px; border-radius:8px;
-        border:0.5px solid var(--border); background:var(--input-bg);
-        color:var(--text); outline:none; transition:border-color .15s;
+      /* Override tool-container pour Regex plein écran */
+      #tool-container:has(.rx-layout) {
+        overflow: hidden;
+        padding: 0;
       }
-      .rx-pattern-input:focus { border-color:var(--accent); }
-      .rx-pattern-input.err { border-color:#D85A30; background:#FAECE7; color:#993C1D; }
 
-      /* Flags grid */
-      .rx-flags-section { margin-bottom:12px; }
-      .rx-flags-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
-      @media(max-width:580px){ .rx-flags-grid { grid-template-columns:1fr; } }
-      @media(max-width:640px){
-        .rx-expr-row { gap:4px; }
-        .rx-pattern-input { font-size:14px; min-width:0; }
-        .rx-flags-section { margin-bottom:8px; }
-        .rx-lib-grid { grid-template-columns: 1fr 1fr; }
+      .rx-layout {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 10px 20px;
+        gap: 10px;
+        box-sizing: border-box;
       }
-      @media(max-width:400px){
-        .rx-lib-grid { grid-template-columns: 1fr; }
+
+      /* ─── En-tête ─── */
+      .rx-header {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .rx-expr-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .rx-slash {
+        font-size: 20px;
+        color: var(--muted);
+        font-family: monospace;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+
+      .rx-pattern-input {
+        flex: 1;
+        font-family: 'JetBrains Mono','Fira Mono',monospace;
+        font-size: 15px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: var(--input-bg);
+        color: var(--text);
+        outline: none;
+        transition: border-color .15s;
+      }
+      .rx-pattern-input:focus { border-color: var(--accent); }
+      .rx-pattern-input.err { border-color: #D85A30; background: #FAECE7; color: #993C1D; }
+
+      /* Flags compacts (1 ligne horizontale) */
+      .rx-flags-grid {
+        display: flex;
+        gap: 5px;
       }
       .rx-flag-card {
-        display:flex; flex-direction:column; gap:5px;
-        padding:10px 12px; border-radius:9px;
-        border:0.5px solid var(--border); background:var(--surface2);
-        cursor:pointer; text-align:left; font-family:inherit;
-        transition:border-color .15s, background .15s;
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: var(--surface2);
+        cursor: pointer;
+        text-align: left;
+        font-family: inherit;
+        transition: border-color .15s, background .15s;
       }
-      .rx-flag-card:hover { border-color:var(--accent); background:var(--input-bg); }
-      .rx-flag-card.active { border-color:#85B7EB; background:#E6F1FB; }
-      .dark .rx-flag-card.active { border-color:#388bfd; background:#1c2d3f; }
-      .rx-flag-header { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
-      .rx-flag-hint { font-size:11px; color:var(--muted); flex:1; text-align:right; }
-      .rx-flag-letter { font-family:monospace; font-size:17px; font-weight:700; color:var(--muted); width:20px; }
-      .rx-flag-card.active .rx-flag-letter { color:#0C447C; }
-      .dark .rx-flag-card.active .rx-flag-letter { color:#58a6ff; }
-      .rx-flag-name { font-size:12px; font-weight:600; color:var(--text); }
-      .rx-flag-badge { margin-left:auto; font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; background:#0C447C; color:#fff; text-transform:uppercase; letter-spacing:.04em; }
-      .dark .rx-flag-badge { background:#388bfd; }
+      .rx-flag-card:hover { border-color: var(--accent); background: var(--input-bg); }
+      .rx-flag-card.active { border-color: #85B7EB; background: #E6F1FB; }
+      .dark .rx-flag-card.active { border-color: #388bfd; background: #1c2d3f; }
+      .rx-flag-header { display: contents; }
+      .rx-flag-hint { display: none; }
+      .rx-flag-letter { font-family: monospace; font-size: 15px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; }
+      .rx-flag-card.active .rx-flag-letter { color: #0C447C; }
+      .dark .rx-flag-card.active .rx-flag-letter { color: #58a6ff; }
+      .rx-flag-name { font-size: 11px; font-weight: 600; color: var(--text); flex: 1; }
+      .rx-flag-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: #0C447C; color: #fff; text-transform: uppercase; letter-spacing: .04em; margin-left: auto; flex-shrink: 0; }
+      .dark .rx-flag-badge { background: #388bfd; }
 
-      .rx-status { display:flex; align-items:center; gap:8px; padding:9px 13px; border-radius:8px; border:0.5px solid var(--border); font-size:13px; color:var(--text); }
-      .rx-match-count { margin-left:auto; font-size:12px; font-weight:600; color:var(--accent); }
+      .rx-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        font-size: 12px;
+        color: var(--text);
+      }
+      .rx-match-count { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--accent); }
 
-      /* Highlight layer */
-      .rx-test-area-wrap { position:relative; }
+      /* ─── Corps : 3 colonnes ─── */
+      .rx-body {
+        flex: 1;
+        display: flex;
+        gap: 10px;
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      .rx-col-left {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .rx-col-center {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      .rx-col-right {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow: hidden;
+        min-width: 0;
+      }
+
+      /* Panel générique */
+      .rx-panel {
+        background: var(--surface);
+        border: 0.5px solid var(--border-light);
+        border-radius: 12px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+        flex-shrink: 0;
+      }
+
+      .rx-panel-title {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--muted2);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+      }
+
+      /* Bibliothèque : remplit la colonne gauche */
+      #rx-lib-panel { flex: 1; }
+      .rx-lib-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow-y: auto;
+        flex: 1;
+        scrollbar-width: thin;
+      }
+      .rx-lib-item {
+        padding: 6px 10px;
+        border-radius: 7px;
+        background: var(--surface2);
+        border: 0.5px solid var(--border);
+        cursor: pointer;
+        transition: background .12s, border-color .12s;
+        flex-shrink: 0;
+      }
+      .rx-lib-item:hover { background: var(--input-bg); border-color: var(--accent); }
+      .rx-lib-label { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 1px; }
+      .rx-lib-pattern { font-family: monospace; font-size: 10px; color: var(--accent); word-break: break-all; }
+      .rx-lib-desc { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+      /* Texte de test : remplit le centre */
+      .rx-panel-test { flex: 1; }
+      .rx-test-area-wrap {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+      }
       .rx-highlight-layer {
-        position:absolute; inset:0; pointer-events:none;
-        font-family:'JetBrains Mono','Fira Mono',monospace;
-        font-size:12.5px; line-height:1.7; padding:12px;
-        border-radius:8px; white-space:pre-wrap; word-break:break-word;
-        overflow:hidden; color:transparent;
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        font-family: 'JetBrains Mono','Fira Mono',monospace;
+        font-size: 12.5px;
+        line-height: 1.7;
+        padding: 10px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: hidden;
+        color: transparent;
       }
       .rx-test-textarea {
-        position:relative; width:100%; min-height:160px; resize:vertical;
-        font-family:'JetBrains Mono','Fira Mono',monospace;
-        font-size:12.5px; line-height:1.7; padding:12px;
-        border-radius:8px; border:0.5px solid var(--border);
-        background:transparent; color:var(--text); outline:none;
-        caret-color:var(--text); z-index:1;
-        transition:border-color .15s;
+        position: absolute;
+        inset: 0;
+        resize: none;
+        font-family: 'JetBrains Mono','Fira Mono',monospace;
+        font-size: 12.5px;
+        line-height: 1.7;
+        padding: 10px;
+        border-radius: 8px;
+        border: 0.5px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        outline: none;
+        caret-color: var(--text);
+        z-index: 1;
+        transition: border-color .15s;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
       }
-      .rx-test-textarea:focus { border-color:var(--accent); }
+      .rx-test-textarea:focus { border-color: var(--accent); }
 
       /* Match highlights */
       .rx-hl { background:rgba(88,166,255,0.25); border-radius:2px; outline:1px solid rgba(88,166,255,0.5); }
@@ -193,12 +238,40 @@ export function mount(container) {
       .rx-hl-4  { background:rgba(38,198,218,0.25); outline:1px solid rgba(38,198,218,0.5); }
       .rx-hl-5  { background:rgba(255,112,67,0.25); outline:1px solid rgba(255,112,67,0.5); }
 
-      /* Explication */
-      .rx-explain { display:flex; flex-direction:column; gap:3px; }
-      .rx-explain-row { display:flex; align-items:baseline; gap:10px; padding:5px 10px; border-radius:6px; background:var(--surface2); font-size:13px; }
+      /* Correspondances + Groupes (sous le textarea) */
+      #rx-matches-card { max-height: 200px; }
+      .rx-matches-scroll { overflow-y: auto; flex: 1; scrollbar-width: thin; }
+      #rx-groups-card { max-height: 150px; }
+      .rx-groups-scroll { overflow-y: auto; flex: 1; scrollbar-width: thin; }
+
+      .rx-match-item { display:flex; flex-direction:column; gap:2px; padding:5px 10px; border-radius:7px; background:var(--surface2); margin-bottom:4px; border-left:3px solid var(--accent); flex-shrink:0; }
+      .rx-match-item:nth-child(1) { border-color:#FF8A00; }
+      .rx-match-item:nth-child(2) { border-color:#43A047; }
+      .rx-match-item:nth-child(3) { border-color:#E53935; }
+      .rx-match-item:nth-child(4) { border-color:#8E24AA; }
+      .rx-match-item:nth-child(5) { border-color:#00ACC1; }
+      .rx-match-item:nth-child(n+6) { border-color:var(--accent); }
+      .rx-match-header { display:flex; gap:8px; align-items:center; }
+      .rx-match-idx { font-size:10px; color:var(--muted2); }
+      .rx-match-val { font-family:monospace; font-size:12px; font-weight:600; color:var(--text); }
+      .rx-match-pos { font-size:10px; color:var(--muted); margin-left:auto; }
+      .rx-match-groups { display:flex; flex-wrap:wrap; gap:3px; margin-top:2px; }
+      .rx-match-group { font-size:10px; font-family:monospace; padding:1px 6px; border-radius:4px; background:var(--surface); border:0.5px solid var(--border); color:var(--muted); }
+      .rx-match-group span { color:var(--text); font-weight:500; }
+
+      .rx-group-table { width:100%; border-collapse:collapse; font-size:11px; }
+      .rx-group-table th { text-align:left; font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; padding:3px 8px; border-bottom:0.5px solid var(--border); }
+      .rx-group-table td { padding:4px 8px; border-bottom:0.5px solid var(--border-light); font-family:monospace; vertical-align:top; }
+      .rx-group-table tr:last-child td { border-bottom:none; }
+      .rx-group-name { font-weight:600; color:var(--accent); }
+
+      /* Explication : remplit la colonne droite */
+      #rx-explain-wrap { flex: 1; }
+      .rx-explain { display:flex; flex-direction:column; gap:3px; overflow-y:auto; flex:1; scrollbar-width:thin; }
+      .rx-explain-row { display:flex; align-items:baseline; gap:10px; padding:4px 8px; border-radius:6px; background:var(--surface2); font-size:12px; flex-shrink:0; }
       .rx-explain-row:hover { background:var(--input-bg); }
-      .rx-explain-token { font-family:monospace; font-size:13px; font-weight:700; min-width:90px; flex-shrink:0; }
-      .rx-explain-desc  { color:var(--muted); flex:1; line-height:1.4; }
+      .rx-explain-token { font-family:monospace; font-size:12px; font-weight:700; min-width:80px; flex-shrink:0; }
+      .rx-explain-desc { color:var(--muted); flex:1; line-height:1.4; }
       .rx-explain-row.group-0 .rx-explain-token { color:#FF8A00; }
       .rx-explain-row.group-1 .rx-explain-token { color:#43A047; }
       .rx-explain-row.group-2 .rx-explain-token { color:#E53935; }
@@ -207,49 +280,144 @@ export function mount(container) {
       .rx-explain-row.group-5 .rx-explain-token { color:#F4511E; }
       .rx-explain-row.neutral .rx-explain-token { color:var(--accent); }
 
-      /* Groupes */
-      .rx-group-table { width:100%; border-collapse:collapse; font-size:12px; }
-      .rx-group-table th { text-align:left; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; padding:4px 10px; border-bottom:0.5px solid var(--border); }
-      .rx-group-table td { padding:5px 10px; border-bottom:0.5px solid var(--border-light); font-family:monospace; vertical-align:top; }
-      .rx-group-table tr:last-child td { border-bottom:none; }
-      .rx-group-name { font-weight:600; color:var(--accent); }
-
-      /* Matches list */
-      .rx-match-item { display:flex; flex-direction:column; gap:3px; padding:8px 12px; border-radius:8px; background:var(--surface2); margin-bottom:5px; border-left:3px solid var(--accent); }
-      .rx-match-item:nth-child(1) { border-color:#FF8A00; }
-      .rx-match-item:nth-child(2) { border-color:#43A047; }
-      .rx-match-item:nth-child(3) { border-color:#E53935; }
-      .rx-match-item:nth-child(4) { border-color:#8E24AA; }
-      .rx-match-item:nth-child(5) { border-color:#00ACC1; }
-      .rx-match-item:nth-child(n+6) { border-color:var(--accent); }
-      .rx-match-header { display:flex; gap:10px; align-items:center; }
-      .rx-match-idx { font-size:11px; color:var(--muted2); }
-      .rx-match-val { font-family:monospace; font-size:13px; font-weight:600; color:var(--text); }
-      .rx-match-pos { font-size:11px; color:var(--muted); margin-left:auto; }
-      .rx-match-groups { display:flex; flex-wrap:wrap; gap:4px; margin-top:3px; }
-      .rx-match-group { font-size:11px; font-family:monospace; padding:2px 8px; border-radius:5px; background:var(--surface); border:0.5px solid var(--border); color:var(--muted); }
-      .rx-match-group span { color:var(--text); font-weight:500; }
-
-      /* Bibliothèque */
-      .rx-lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:6px; }
-      .rx-lib-item { padding:8px 12px; border-radius:8px; background:var(--surface2); border:0.5px solid var(--border); cursor:pointer; transition:background .12s, border-color .12s; }
-      .rx-lib-item:hover { background:var(--input-bg); border-color:var(--accent); }
-      .rx-lib-label { font-size:12px; font-weight:600; color:var(--text); margin-bottom:2px; }
-      .rx-lib-pattern { font-family:monospace; font-size:11px; color:var(--accent); word-break:break-all; }
-      .rx-lib-desc { font-size:11px; color:var(--muted); margin-top:2px; }
-
-      /* Lang toggle + code */
-      .rx-lang-toggle { display:flex; gap:6px; margin-bottom:10px; }
-      .rx-lang-btn { padding:5px 16px; border-radius:7px; border:0.5px solid var(--border); background:var(--surface); color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .12s; }
+      /* Code généré */
+      #rx-export-card { flex-shrink: 0; }
+      .rx-lang-toggle { display:flex; gap:5px; margin-bottom:8px; flex-shrink:0; }
+      .rx-lang-btn { padding:4px 14px; border-radius:7px; border:0.5px solid var(--border); background:var(--surface2); color:var(--muted); font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .12s; }
       .rx-lang-btn.active { background:#E6F1FB; color:#0C447C; border-color:#85B7EB; }
-      .rx-code-block { background:var(--input-bg); border:0.5px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono','Fira Mono',monospace; font-size:12px; line-height:1.75; color:var(--text); white-space:pre; overflow-x:auto; }
-      .rx-code-block .ck  { color:var(--c-bool); }
-      .rx-code-block .cs  { color:var(--c-str); }
-      .rx-code-block .cc  { color:var(--c-comment); }
-      .rx-code-block .cn  { color:var(--c-num); }
+      .rx-code-block { background:var(--input-bg); border:0.5px solid var(--border); border-radius:8px; padding:10px 12px; font-family:'JetBrains Mono','Fira Mono',monospace; font-size:11px; line-height:1.65; color:var(--text); white-space:pre; overflow-x:auto; max-height:180px; overflow-y:auto; }
+      .rx-code-block .ck { color:var(--c-bool); }
+      .rx-code-block .cs { color:var(--c-str); }
+      .rx-code-block .cc { color:var(--c-comment); }
+      .rx-code-block .cn { color:var(--c-num); }
+
+      /* ─── Responsive mobile ─── */
+      @media (max-width: 900px) {
+        #tool-container:has(.rx-layout) { overflow-y: auto; }
+        .rx-layout { height: auto; }
+        .rx-body { flex-direction: column; overflow: visible; }
+        .rx-col-left, .rx-col-center, .rx-col-right { flex: none; overflow: visible; }
+        #rx-lib-panel { flex: none; max-height: 240px; }
+        .rx-panel-test { flex: none; }
+        .rx-test-area-wrap { min-height: 200px; }
+        #rx-matches-card, #rx-groups-card { max-height: none; }
+        #rx-explain-wrap { flex: none; max-height: 260px; }
+        #rx-export-card { flex-shrink: 0; }
+      }
+      @media (max-width: 640px) {
+        .rx-layout { padding: 8px 10px; }
+        .rx-flags-grid { flex-wrap: wrap; }
+        .rx-flag-card { flex: 1 0 40%; }
+      }
     `;
     document.head.appendChild(s);
   }
+
+  // ── HTML ──
+  container.innerHTML = `
+<div class="rx-layout">
+
+  <!-- En-tête : pattern + flags + status -->
+  <div class="rx-header">
+    <div class="rx-expr-row">
+      <span class="rx-slash">/</span>
+      <input type="text" id="rx-pattern" class="rx-pattern-input"
+             placeholder="([A-Z][a-z]+)\\s+(\\d{4})"
+             spellcheck="false" autocomplete="off" />
+      <span class="rx-slash">/</span>
+      <button id="rx-copy-btn">Copier ↗</button>
+    </div>
+    <div class="rx-flags-grid">
+      <button class="rx-flag-card active" id="rx-flag-g" data-flag="g">
+        <div class="rx-flag-header">
+          <span class="rx-flag-letter">g</span>
+          <span class="rx-flag-name">global</span>
+          <span class="rx-flag-hint">Toutes les correspondances</span>
+          <span class="rx-flag-badge" id="rx-badge-g">actif</span>
+        </div>
+      </button>
+      <button class="rx-flag-card" id="rx-flag-i" data-flag="i">
+        <div class="rx-flag-header">
+          <span class="rx-flag-letter">i</span>
+          <span class="rx-flag-name">insensible à la casse</span>
+          <span class="rx-flag-hint">Ignore majuscules / minuscules</span>
+          <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
+        </div>
+      </button>
+      <button class="rx-flag-card" id="rx-flag-m" data-flag="m">
+        <div class="rx-flag-header">
+          <span class="rx-flag-letter">m</span>
+          <span class="rx-flag-name">multiline</span>
+          <span class="rx-flag-hint">^ et $ sur chaque ligne</span>
+          <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
+        </div>
+      </button>
+      <button class="rx-flag-card" id="rx-flag-s" data-flag="s">
+        <div class="rx-flag-header">
+          <span class="rx-flag-letter">s</span>
+          <span class="rx-flag-name">dotAll</span>
+          <span class="rx-flag-hint">. inclut les sauts de ligne</span>
+          <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
+        </div>
+      </button>
+    </div>
+    <div class="rx-status" id="rx-status">
+      <div class="status-dot" id="rx-dot"></div>
+      <span id="rx-status-msg">Saisissez une expression régulière</span>
+      <span class="rx-match-count" id="rx-match-count"></span>
+    </div>
+  </div>
+
+  <!-- Corps : 3 colonnes -->
+  <div class="rx-body">
+
+    <!-- Gauche : Bibliothèque de patterns -->
+    <div class="rx-col-left">
+      <div class="rx-panel" id="rx-lib-panel">
+        <div class="rx-panel-title">Bibliothèque</div>
+        <div class="rx-lib-grid" id="rx-lib-grid"></div>
+      </div>
+    </div>
+
+    <!-- Centre : Texte de test + Correspondances + Groupes -->
+    <div class="rx-col-center">
+      <div class="rx-panel rx-panel-test">
+        <div class="rx-panel-title">Texte de test</div>
+        <div class="rx-test-area-wrap">
+          <div id="rx-highlight-layer" class="rx-highlight-layer" aria-hidden="true"></div>
+          <textarea id="rx-test-input" class="rx-test-textarea"
+                    placeholder="Colle ou tape le texte à tester ici…"
+                    spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="rx-panel" id="rx-matches-card" style="display:none;">
+        <div class="rx-panel-title">Correspondances</div>
+        <div class="rx-matches-scroll"><div id="rx-matches-list"></div></div>
+      </div>
+      <div class="rx-panel" id="rx-groups-card" style="display:none;">
+        <div class="rx-panel-title">Groupes capturants</div>
+        <div class="rx-groups-scroll"><div id="rx-groups-list"></div></div>
+      </div>
+    </div>
+
+    <!-- Droite : Explication + Code généré -->
+    <div class="rx-col-right">
+      <div class="rx-panel" id="rx-explain-wrap" style="display:none;">
+        <div class="rx-panel-title">Explication token par token</div>
+        <div class="rx-explain" id="rx-explain"></div>
+      </div>
+      <div class="rx-panel" id="rx-export-card" style="display:none;">
+        <div class="rx-panel-title">Code généré</div>
+        <div class="rx-lang-toggle">
+          <button class="rx-lang-btn active" id="rx-lang-java">Java</button>
+          <button class="rx-lang-btn" id="rx-lang-js">JavaScript</button>
+        </div>
+        <div class="rx-code-block" id="rx-code"></div>
+      </div>
+    </div>
+
+  </div>
+</div>`;
 
   // ── Bibliothèque de patterns ──
   const LIBRARY = [
@@ -521,13 +689,13 @@ export function mount(container) {
       return `<tr>
         <td class="rx-group-name">$${i+1}${name?` / ?<${name}>`:''}</td>
         <td style="font-family:monospace;">${g !== undefined ? escHtml(g) : '<em style="color:var(--muted2)">non participatif</em>'}</td>
-        <td style="color:var(--muted);">Groupe capturant n°${i+1}${name?` (nommé "${name}")`:''}</td>
+        <td style="color:var(--muted);">Groupe n°${i+1}${name?` (nommé "${name}")`:''}</td>
       </tr>`;
     }).join('');
 
     document.getElementById('rx-groups-list').innerHTML = `
       <table class="rx-group-table">
-        <thead><tr><th>Groupe</th><th>Valeur (1ère correspondance)</th><th>Description</th></tr></thead>
+        <thead><tr><th>Groupe</th><th>Valeur (1ère corresp.)</th><th>Description</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
   }
@@ -564,7 +732,6 @@ export function mount(container) {
         }
       }
       if (!matched) {
-        // Caractère littéral
         const ch = pattern[i];
         result.push({ token: ch, desc: `Caractère littéral "${ch}"` });
         i++;
