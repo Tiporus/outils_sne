@@ -82,7 +82,7 @@ export function mount(container) {
       .rx-flag-card:hover { border-color: var(--accent); background: var(--input-bg); }
       .rx-flag-card.active { border-color: #85B7EB; background: #E6F1FB; }
       .dark .rx-flag-card.active { border-color: #388bfd; background: #1c2d3f; }
-      .rx-flag-header { display: contents; }
+      .rx-flag-header { display: flex; align-items: center; gap: 7px; width: 100%; }
       .rx-flag-hint { display: none; }
       .rx-flag-letter { font-family: monospace; font-size: 15px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; }
       .rx-flag-card.active .rx-flag-letter { color: #0C447C; }
@@ -328,36 +328,32 @@ export function mount(container) {
       <button id="rx-copy-btn">Copier ↗</button>
     </div>
     <div class="rx-flags-grid">
-      <button class="rx-flag-card active" id="rx-flag-g" data-flag="g">
+      <button class="rx-flag-card active" id="rx-flag-g" data-flag="g" title="global — Trouve toutes les correspondances, pas seulement la première.">
         <div class="rx-flag-header">
           <span class="rx-flag-letter">g</span>
           <span class="rx-flag-name">global</span>
-          <span class="rx-flag-hint">Toutes les correspondances</span>
           <span class="rx-flag-badge" id="rx-badge-g">actif</span>
         </div>
       </button>
-      <button class="rx-flag-card" id="rx-flag-i" data-flag="i">
+      <button class="rx-flag-card active" id="rx-flag-i" data-flag="i" title="insensible à la casse — Ignore la différence majuscules / minuscules. Ex : 'a' correspond à 'A'.">
         <div class="rx-flag-header">
           <span class="rx-flag-letter">i</span>
           <span class="rx-flag-name">insensible à la casse</span>
-          <span class="rx-flag-hint">Ignore majuscules / minuscules</span>
-          <span class="rx-flag-badge" id="rx-badge-i" style="display:none;">actif</span>
+          <span class="rx-flag-badge" id="rx-badge-i">actif</span>
         </div>
       </button>
-      <button class="rx-flag-card" id="rx-flag-m" data-flag="m">
+      <button class="rx-flag-card active" id="rx-flag-m" data-flag="m" title="multiline — ^ et $ correspondent au début et à la fin de chaque ligne, pas seulement de la chaîne entière.">
         <div class="rx-flag-header">
           <span class="rx-flag-letter">m</span>
           <span class="rx-flag-name">multiline</span>
-          <span class="rx-flag-hint">^ et $ sur chaque ligne</span>
-          <span class="rx-flag-badge" id="rx-badge-m" style="display:none;">actif</span>
+          <span class="rx-flag-badge" id="rx-badge-m">actif</span>
         </div>
       </button>
-      <button class="rx-flag-card" id="rx-flag-s" data-flag="s">
+      <button class="rx-flag-card active" id="rx-flag-s" data-flag="s" title="dotAll — Le point . correspond aussi aux sauts de ligne \n. Utile pour les patterns multi-lignes.">
         <div class="rx-flag-header">
           <span class="rx-flag-letter">s</span>
           <span class="rx-flag-name">dotAll</span>
-          <span class="rx-flag-hint">. inclut les sauts de ligne</span>
-          <span class="rx-flag-badge" id="rx-badge-s" style="display:none;">actif</span>
+          <span class="rx-flag-badge" id="rx-badge-s">actif</span>
         </div>
       </button>
     </div>
@@ -421,7 +417,7 @@ export function mount(container) {
 
   // ── Bibliothèque de patterns ──
   const LIBRARY = [
-    { label:'Email',          pattern:'^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$',       flags:'i',  desc:'Adresse email simple' },
+    { label:'Email',          pattern:'[\\w.+-]+@[\\w-]+\\.[a-z]{2,}',          flags:'gi', desc:'Adresse email simple' },
     { label:'URL HTTP(S)',    pattern:'https?:\\/\\/[\\w.-]+(?:\\/[\\S]*)?',    flags:'gi', desc:'URL avec protocole' },
     { label:'IPv4',           pattern:'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b',      flags:'g',  desc:'Adresse IPv4' },
     { label:'NIR (sécu.)',    pattern:'[12]\\d{2}(?:0[1-9]|1[0-2])\\d{10}',    flags:'g',  desc:'N° sécurité sociale FR' },
@@ -499,7 +495,7 @@ export function mount(container) {
   });
 
   // ── State flags ──
-  const flagState = { g: true, i: false, m: false, s: false };
+  const flagState = { g: true, i: true, m: true, s: true };
 
   function setFlag(f, val) {
     flagState[f] = val;
@@ -618,7 +614,7 @@ export function mount(container) {
 
     renderHighlight(pattern, matches, testText);
     renderMatches(matches);
-    renderGroups(matches, pattern);
+    renderGroups(matches);
     renderCode(pattern, regex.flags);
 
     document.getElementById('rx-export-card').style.display = pattern ? '' : 'none';
@@ -675,7 +671,7 @@ export function mount(container) {
   }
 
   // ── Groupes capturants ──
-  function renderGroups(matches, pattern) {
+  function renderGroups(matches) {
     const card = document.getElementById('rx-groups-card');
     const firstWithGroups = matches.find(m => m.groups.some(g=>g!==undefined));
     if (!firstWithGroups) { card.style.display = 'none'; return; }
@@ -800,6 +796,43 @@ export function mount(container) {
 
   // ── Init avec exemple ──
   document.getElementById('rx-pattern').value = '([A-Z][a-z]+)\\s+(\\d{4})';
-  document.getElementById('rx-test-input').value = 'Java 2024 et Spring 2023 sont des technos populaires.\nPython 2025 monte aussi en puissance.';
+  document.getElementById('rx-test-input').value = [
+    '# Contacts',
+    'Alice Dupont   — alice.dupont@example.com   — 06 12 34 56 78',
+    'Bob Martin     — bob.martin@société.fr      — +33 7 98 76 54 32',
+    'Claire Leroy   — c.leroy+pro@mail.co.uk     — 01-23-45-67-89',
+    '',
+    '# Dates',
+    'Naissance : 14/07/1789   Embauche : 01/03/2021   Fin contrat : 31/12/2025',
+    'ISO : 2024-11-05   Avec heure : 2025-06-15T08:30:00',
+    '',
+    '# Adresses IP & UUID',
+    '192.168.1.1   10.0.0.255   172.16.254.1   999.999.999.999',
+    '550e8400-e29b-41d4-a716-446655440000',
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    '',
+    '# Codes postaux & NIR',
+    'Paris 75008 — Lyon 69003 — Marseille 13001 — DOM 97400',
+    'NIR : 1 85 07 75 056 047 58   2 93 12 69 001 023 14',
+    '',
+    '# Couleurs & nombres',
+    '#FF5733   #abc   rgb(255, 87, 51)   rgba(0,0,0,0.5)',
+    'Entiers : 42  -7  1_000_000   Décimaux : 3,14  -0.001  2.5e10',
+    '',
+    '# URLs',
+    'https://www.example.com/path?query=1&page=2#anchor',
+    'http://api.service.io/v3/users/42',
+    '',
+    '# Code Java',
+    '// Commentaire simple',
+    '/* Bloc commentaire',
+    '   sur plusieurs lignes */',
+    'String camelCase = monIdentificateur;',
+    'int valeurMax = Integer.MAX_VALUE; // 2147483647',
+    '',
+    '# Balises HTML',
+    '<div class="container">  <p id="intro">Bonjour le monde !</p>  </div>',
+    '<img src="photo.jpg" alt="Une photo" />',
+  ].join('\n');
   rxRun();
 }
