@@ -1412,6 +1412,7 @@
     <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter',this)">JSON / XML</button>
     <button class="tab-btn" data-tab="cron" onclick="switchTab('cron',this)">CRON</button>
     <button class="tab-btn" data-tab="regex" onclick="switchTab('regex',this)">Regex</button>
+    <button class="tab-btn" data-tab="date" onclick="switchTab('date',this)">Date</button>
 
     <!-- Thème toujours visible -->
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
@@ -1427,6 +1428,7 @@
     <button class="tab-btn" data-tab="formatter" onclick="switchTab('formatter')">JSON / XML</button>
     <button class="tab-btn" data-tab="cron" onclick="switchTab('cron')">CRON</button>
     <button class="tab-btn" data-tab="regex" onclick="switchTab('regex')">Regex</button>
+    <button class="tab-btn" data-tab="date" onclick="switchTab('date')">Date</button>
   </div>
 
   <div id="tool-container"></div>
@@ -1438,6 +1440,7 @@
     import { meta as formatterMeta, mount as formatterMount } from './tools/formatter.js';
     import { meta as cronMeta, mount as cronMount } from './tools/cron.js';
     import { meta as regexMeta, mount as regexMount } from './tools/regex.js';
+    import { meta as dateMeta, mount as dateMount } from './tools/date.js';
 
     const TOOLS = [
       { ...nirMeta, mount: nirMount },
@@ -1446,6 +1449,7 @@
       { ...formatterMeta, mount: formatterMount },
       { ...cronMeta, mount: cronMount },
       { ...regexMeta, mount: regexMount },
+      { ...dateMeta, mount: dateMount },
     ];
 
     const container = document.getElementById('tool-container');
